@@ -210,6 +210,9 @@ def DeleteProject():
             # 削除する
             pdata = config["projects"].pop(int(input_data))
 
+            # プロジェクトを落とす
+            subprocess.run([sys.executable, "./down_develop.py"])
+
             # docker のファイルを削除する
             print("docker ファイルを削除しています")
             os.remove(pdata["compose_path"])
@@ -225,9 +228,6 @@ def DeleteProject():
             break
         except:
             print("削除に失敗しました")
-
-    # プロジェクトを落とす
-    subprocess.run([sys.executable, "./down_develop.py"])
 
     # 設定ファイルに書き込む
     WriteConfig()
