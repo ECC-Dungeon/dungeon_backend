@@ -1,0 +1,9 @@
+
+services:
+    admin:
+        build: ../admin
+        hostname: admin
+        restart: always
+        tty: true
+        volumes:
+            - ../admin/src:/root/admin
