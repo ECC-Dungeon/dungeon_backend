@@ -20,7 +20,8 @@ func Init() {
 	}
 
 	// マイグレーション
-	// db.AutoMigrate(&LinkModel{})
+	db.AutoMigrate(&Team{})
+	db.AutoMigrate(&Link{})
 
 	// グローバル変数に格納
 	dbconn = db

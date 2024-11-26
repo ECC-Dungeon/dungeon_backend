@@ -1,12 +1,20 @@
 package main
 
 import (
+	"admin/models"
 	"log"
 	"os"
 )
 
-
 func main() {
+	// env など読み込み
+	Init()
+
+	// デバッグ
+	models.Debug()
+}
+
+func mainServer() {
 	// 初期化
 	Init()
 
