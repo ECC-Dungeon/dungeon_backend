@@ -58,3 +58,32 @@ func GetTeam(teamid string) (Team, error) {
 
 	return getTeam, nil
 }
+
+func DeleteTeam(teamid string) error {
+	// チームを削除する
+	result := dbconn.Delete(&Team{
+		TeamID: teamid,
+	})
+
+	// エラー処理
+	if result.Error != nil {
+		return result.Error
+	}	
+
+	return nil	
+}
+
+func ListTeam() ([]Team, error) {
+	// チームを取得する
+	var teams []Team
+
+	// チームを取得
+	result := dbconn.Find(&teams)
+
+	// エラー処理
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return teams, nil
+}

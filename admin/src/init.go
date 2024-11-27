@@ -1,8 +1,9 @@
 package main
 
 import (
-	"log"
 	"admin/controllers"
+	"admin/models"
+	"log"
 
 	"github.com/joho/godotenv"
 )
@@ -28,4 +29,6 @@ func Init() {
 	// コントローラー初期化
 	controllers.Init()
 	
+	// DB 初期化
+	models.Init()
 }

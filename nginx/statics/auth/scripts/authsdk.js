@@ -11,6 +11,12 @@ async function GetSession() {
     return authData;
 }
 
+async function GetToken() {
+    // 認証更新
+    const authData = await pb.collection('users').authRefresh();
+
+    return authData.token;
+}
 
 function Logout(do_reload) {
     try {

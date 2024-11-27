@@ -1,7 +1,6 @@
 package main
 
 import (
-	"admin/models"
 	"log"
 	"os"
 )
@@ -11,7 +10,10 @@ func main() {
 	Init()
 
 	// デバッグ
-	models.Debug()
+	// models.Debug()
+
+	// サーバー起動
+	mainServer()
 }
 
 func mainServer() {

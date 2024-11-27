@@ -2,6 +2,7 @@ package main
 
 import (
 	// "admin/controllers"
+	"admin/controllers"
 	"admin/middlewares"
 	"net/http"
 
@@ -15,11 +16,19 @@ func InitServer() *echo.Echo {
 
 	// ミドルウェア
 	server.Use(middleware.Logger())
-	server.Use(middleware.Recover())
+	// server.Use(middleware.Recover())
 
 	server.POST("/", func(ctx echo.Context) error {
 		return ctx.String(http.StatusOK, "Hello, World!")
-	},middlewares.PocketAuth())
-	
+	}, middlewares.PocketAuth())
+
+	// ルーティング
+	teamg := server.Group("/team")
+	teamg.Use(middlewares.PocketAuth())
+	{
+		teamg.GET("/list", controllers.ListTeam)
+		teamg.POST("/create", controllers.CreateTeam)
+		teamg.DELETE("/delete", controllers.DeleteTeam)
+	}
 	return server
 }

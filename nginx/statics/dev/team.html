@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>チーム</title>
+</head>
+<body>
+    <form id="create_team">
+        <label for="name">チーム名</label>
+        <input type="text" name="name" id="name">
+        <button type="submit">保存</button>
+    </form>
+
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th scope="col">チームID</th>
+                <th scope="col">チーム名</th>
+                <th scope="col">作成者</th>
+                <th scope="col">状態</th>
+                <th scope="col">操作</th>
+            </tr>
+        </thead>
+        <tbody id="team_list">
+        </tbody>
+    </table>
+
+    <!-- pocketbase のメイン -->
+    <script src="/statics/auth/scripts/pocketbase.umd.js"></script>
+    <!-- 認証Sdk -->
+    <script src="/statics/auth/scripts/authsdk.js"></script>
+    <!-- 各種設定 -->
+    <script src="/statics/config.js"></script>
+    
+    <!-- bootstrap -->
+    <link rel="stylesheet" href="./bootstrap-5.3.0-dist/css/bootstrap.min.css">
+    <script src="./bootstrap-5.3.0-dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="./scripts/team.js" defer></script>
+</body>
+</html>
