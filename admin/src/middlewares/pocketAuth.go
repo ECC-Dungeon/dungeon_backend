@@ -46,7 +46,16 @@ func PocketAuth() echo.MiddlewareFunc {
 			// ユーザーを設定
 			ctx.Set("user", user)
 
-			return next(ctx)
+			log.Println(user)
+			// admin かオーナーのロールがあるか
+			for _, label  := range user.Labels {
+				if label == "admin" || label == "owner" {
+					// 次を実行
+					return next(ctx)
+				}
+			}
+
+			return ctx.NoContent(http.StatusForbidden)
 		}
 	}
 }

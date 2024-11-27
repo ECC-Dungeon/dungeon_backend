@@ -90,7 +90,7 @@ function ShowTeam(id, name, creator, status) {
         console.log(await DeleteTeam(id));
 
         // リロード
-        RefreshTeam();
+        await RefreshTeam();
     });
     deltd.appendChild(delbtn);
 

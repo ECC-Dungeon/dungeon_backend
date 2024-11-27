@@ -31,6 +31,7 @@ func CreateCollection(app *pocketbase.PocketBase) {
 			// ラベルテーブルを作成する
 			form := forms.NewCollectionUpsert(app, new_collection)
 			form.Name = "label"
+			form.Id = "__user_labels__"
 			form.Type = models.CollectionTypeBase
 			form.ListRule = nil //管理者限定
 			form.ViewRule = types.Pointer("@request.auth.id != ''")

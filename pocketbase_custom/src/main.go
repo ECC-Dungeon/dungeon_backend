@@ -49,17 +49,41 @@ func main() {
 				// エラー処理
 				if err != nil {
 					log.Println(err)
+					return ctx.JSON(http.StatusUnauthorized, echo.Map{
+						"result": "failed",
+					})
 				}
 
 				// 最初のレコード取得
 				provider := records[0]
 
+				// ラベルのIDを取得する
+				labels := user.Get("labels").([]string)
+
+				// 返すラベル
+				return_labels := []string{}
+
+				// ラベルを回す
+				for _, val := range labels {
+					// ラベルを取得する
+					label, err := app.Dao().FindRecordById("__user_labels__", val)
+
+					// エラー処理
+					if err != nil {
+						log.Println(err)
+						continue
+					}
+
+					// ラベルを追加
+					return_labels = append(return_labels, label.GetString("name"))
+				}
+				
 				// 返すデータ
 				return_data := UserData{
 					UserID:      user.Id,
 					UserName:    user.Username(),
 					Email:       user.Email(),
-					Labels:      []string{},
+					Labels:      return_labels,
 					ProviderUID: provider.ProviderId,
 					Provider:    provider.Provider,
 					Created:     user.GetCreated().Time(),
