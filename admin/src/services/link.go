@@ -13,8 +13,8 @@ const (
 	// 24時間を有効期限とする (秒)
 	GameTokenExpired = 24 * 60 * 60
 
-	// 5分を有効期限とする (秒)
-	LinkTokenExpired = 5 * 60
+	// 15分を有効期限とする (秒)
+	LinkTokenExpired = 15 * 60
 )
 
 type GenTokenArgs struct {
