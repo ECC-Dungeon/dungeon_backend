@@ -30,5 +30,11 @@ func InitServer() *echo.Echo {
 		teamg.POST("/create", controllers.CreateTeam)
 		teamg.DELETE("/delete", controllers.DeleteTeam)
 	}
+
+	linkg := server.Group("/link")
+	linkg.Use(middlewares.PocketAuth())
+	{
+		linkg.POST("/token", controllers.GenToken)
+	}
 	return server
 }

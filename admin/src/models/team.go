@@ -2,7 +2,6 @@ package models
 
 import (
 	"admin/utils"
-	"time"
 )
 
 type Status string
@@ -13,12 +12,12 @@ const (
 )
 
 type Team struct {
-	TeamID    string    `gorm:"primaryKey"`
-	Name      string    //チーム名
-	GameID    string    //ゲームID
-	Status    Status    //チームステータス
-	Creator   string    //作成者ID
-	CreatedAt time.Time //作成時間
+	TeamID    string `gorm:"primaryKey"`
+	Name      string //チーム名
+	GameID    string //ゲームID
+	Status    Status //チームステータス
+	Creator   string //作成者ID
+	CreatedAt int64  `gorm:"autoCreateTime"` //作成時間
 }
 
 func CreateTeam(name string, creatorId string, gameID string) (string, error) {
@@ -27,11 +26,12 @@ func CreateTeam(name string, creatorId string, gameID string) (string, error) {
 
 	// チームを作成する
 	result := dbconn.Save(&Team{
-		TeamID:  teamID,
-		Name:    name,
-		Status:  UnUsed,
-		GameID:  gameID,
-		Creator: creatorId,
+		TeamID:    teamID,
+		Name:      name,
+		Status:    UnUsed,
+		GameID:    gameID,
+		Creator:   creatorId,
+		CreatedAt: utils.Now(),
 	})
 
 	// エラー処理
@@ -68,9 +68,19 @@ func DeleteTeam(teamid string) error {
 	// エラー処理
 	if result.Error != nil {
 		return result.Error
-	}	
+	}
 
-	return nil	
+	// チームのリンクを削除する
+	result = dbconn.Delete(&Link{
+		TeamID: teamid,
+	})
+
+	// エラー処理
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
 }
 
 func ListTeam() ([]Team, error) {

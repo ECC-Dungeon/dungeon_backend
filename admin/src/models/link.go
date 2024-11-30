@@ -1,12 +1,12 @@
 package models
 
-import "time"
+import "admin/utils"
 
 type Link struct {
 	TeamID     string    `gorm:"primaryKey"` //チームID
 	TokenID    string    //トークンID
 	ExpiryDate int64     //有効期限 (unix time)
-	CreatedAt  time.Time //作成日
+	CreatedAt  int64 //作成日
 }
 
 func CreateLink(teamid string, tokenid string, expiryDate int64) error {
@@ -23,6 +23,7 @@ func CreateLink(teamid string, tokenid string, expiryDate int64) error {
 		TeamID:     team.TeamID,
 		TokenID:    tokenid,
 		ExpiryDate: expiryDate,
+		CreatedAt:  utils.Now(),
 	})
 
 	return result.Error

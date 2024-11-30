@@ -83,7 +83,7 @@ function ShowTeam(id, name, creator, status) {
     statustd.textContent = status;
 
     // 削除ボタン
-    const deltd = document.createElement("td");
+    const buttontd = document.createElement("td");
     const delbtn = document.createElement("button");
     delbtn.textContent = "削除";
     delbtn.addEventListener("click",async () => {
@@ -92,16 +92,49 @@ function ShowTeam(id, name, creator, status) {
         // リロード
         await RefreshTeam();
     });
-    deltd.appendChild(delbtn);
+    buttontd.appendChild(delbtn);
+
+    // トークン生成ボタン
+    const tokenbtn = document.createElement("button");
+    tokenbtn.textContent = "トークン生成";
+    tokenbtn.addEventListener("click", async () => {
+        try {
+            // トークンを取得
+            const token_data = await GenTeamToken(id);
+
+            // トークンを表示
+            console.log(token_data["msg"]);
+        } catch (ex) {
+            console.error(ex);
+        }
+    });
+    buttontd.appendChild(tokenbtn);
 
     // 追加
     basetr.appendChild(idtd);
     basetr.appendChild(nametd);
     basetr.appendChild(creatortd);
     basetr.appendChild(statustd);
-    basetr.appendChild(deltd);
+    basetr.appendChild(buttontd);
 
     teamlist.appendChild(basetr);
+}
+
+async function GenTeamToken(teamid) {
+    // トークンを取得
+    const token = await GetToken();
+
+    // リクエストを送る
+    const req = await fetch("/admin/link/token", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": token,
+        },
+        body: JSON.stringify({ "teamid": teamid }),
+    });
+
+    return req.json();
 }
 
 async function DeleteTeam(teamid) {
@@ -135,7 +168,14 @@ async function RefreshTeam() {
 
 // 初期化関数
 async function Init() {
-    await RefreshTeam();
+    try {
+        await RefreshTeam();
+    } catch (ex) {
+        console.error(ex);
+        // alert("取得に失敗しました");
+        // 認証していない場合ログインに飛ばす
+        // window.location.href = LoginURL;
+    }
 }
 
 Init();
