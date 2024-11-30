@@ -29,11 +29,11 @@ func CreateGameLink(teamid string, tokenid string, expiryDate int64) error {
 	return result.Error
 }
 
-func DeleteLink(teamid string) error {
+func DeleteGameLink(teamid string) error {
 	// リンクを削除する
-	result := dbconn.Delete(&GameLink{
+	result := dbconn.Where(&GameLink{
 		TeamID: teamid,
-	})
+	}).Delete(&GameLink{})
 
 	return result.Error
 }

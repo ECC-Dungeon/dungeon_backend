@@ -167,3 +167,25 @@ func GenJwt(args GenTokenArgs) (string, error) {
 
 	return tokenString, nil
 }
+
+func UnLink(teamid string, tokenid string) utils.HttpResult {
+	//　ゲーム用のトークンを削除
+	err := models.DeleteGameLink(teamid)
+
+	// エラー処理
+	if err != nil {
+		// トークンの削除に失敗した場合は500を返す
+		return utils.NewHttpResult(500, "failed to delete token", err)
+	}
+
+	// リンク用のトークンを削除
+	err = models.DeleteLinkToken(teamid)
+
+	// エラー処理
+	if err != nil {
+		// トークンの削除に失敗した場合は500を返す
+		return utils.NewHttpResult(500, "failed to delete token", err)
+	}
+
+	return utils.NewHttpResult(200, "success", nil)
+}

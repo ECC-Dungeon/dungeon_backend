@@ -1,24 +1,5 @@
-const read_form = document.getElementById("read_token_form");
-
-read_form.addEventListener("submit", async (evt) => {
-    evt.preventDefault();
-
-    try {
-        // フォームからデータ取得
-        const formData = new FormData(read_form);
-        const data = {
-            token: formData.get("token"),
-        };
-
-        // トークン読み込み実行
-        const linkData = await InitLink(data.token);
-        console.log(linkData);
-    } catch (ex) {
-        console.error(ex);
-    }
-});
-
-async function InitLink(token) {
+// リンク用のトークンからゲーム用のトークンを生成
+async function GenGameToken(token) {
     try {
         // 送信
         const req = await fetch("/admin/initlink", {
@@ -33,4 +14,22 @@ async function InitLink(token) {
     } catch (ex) {
         console.error(ex);
     }
+}
+
+// リンクトークンを作成する
+async function GenLinkToken(teamid) {
+    // トークンを取得
+    const token = await GetToken();
+
+    // リクエストを送る
+    const req = await fetch("/admin/link/token", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": token,
+        },
+        body: JSON.stringify({ "teamid": teamid }),
+    });
+
+    return req.json();
 }

@@ -79,3 +79,40 @@ func InitLink(ctx echo.Context) error {
         "msg":    gameToken,
     })
 }
+
+// トークン取得
+type UnLinkArgs struct {
+    Teamid string `json:"teamid"`
+}
+
+func UnLink(ctx echo.Context) error {
+    // ユーザーを取得する
+    user := ctx.Get("user").(middlewares.UserData)
+
+    // トークンを取得する
+    args := new(UnLinkArgs)
+    if err := ctx.Bind(args); err != nil {
+        utils.Println("リンク解除失敗 : " + err.Error())
+        return ctx.JSON(400, echo.Map{
+            "result": "error",
+            "msg":    err.Error(),
+        })
+    }
+
+    // リンクを解除する
+    result := services.UnLink(args.Teamid, user.UserID)
+
+    // エラー処理
+    if result.Err != nil {
+        utils.Println("リンク解除失敗 : " + result.Message)
+        return ctx.JSON(result.Code, echo.Map{
+            "result": "error",
+            "msg":    result.Message,
+        })
+    }
+
+    // レスポンスを返す
+    return ctx.JSON(200, echo.Map{
+        "result": "success",
+    })
+}

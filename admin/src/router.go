@@ -35,6 +35,7 @@ func InitServer() *echo.Echo {
 	linkg.Use(middlewares.PocketAuth())
 	{
 		linkg.POST("/token", controllers.GenToken)
+		linkg.DELETE("/remove", controllers.UnLink)
 	}
 
 	// 連携を初期化するエンドポイント
