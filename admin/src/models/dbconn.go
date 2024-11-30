@@ -21,7 +21,8 @@ func Init() {
 
 	// マイグレーション
 	db.AutoMigrate(&Team{})
-	db.AutoMigrate(&Link{})
+	db.AutoMigrate(&GameLink{})
+	db.AutoMigrate(&LinkToken{})
 
 	// グローバル変数に格納
 	dbconn = db

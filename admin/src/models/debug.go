@@ -84,7 +84,7 @@ func debugCreateTeam(doUser string, gameid string) (string, error) {
 
 func debugLinkTeam(teamid string, tokenid string, expired time.Time) error {
 	// // 関連付けを作成する
-	err := CreateLink(teamid, tokenid, expired.Unix())
+	err := CreateGameLink(teamid, tokenid, expired.Unix())
 
 	// エラー処理
 	if err != nil {
@@ -97,7 +97,7 @@ func debugLinkTeam(teamid string, tokenid string, expired time.Time) error {
 	// 存在しないチームのリンク作成
 	utils.Println("存在しないチームのリンク作成")
 	// // 関連付けを作成する
-	err = CreateLink(teamid+"b", tokenid, expired.Unix())
+	err = CreateGameLink(teamid+"b", tokenid, expired.Unix())
 
 	// エラー処理
 	if err != nil {

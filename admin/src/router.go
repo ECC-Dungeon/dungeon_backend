@@ -36,5 +36,9 @@ func InitServer() *echo.Echo {
 	{
 		linkg.POST("/token", controllers.GenToken)
 	}
+
+	// 連携を初期化するエンドポイント
+	server.POST("/initlink", controllers.InitLink)
+
 	return server
 }

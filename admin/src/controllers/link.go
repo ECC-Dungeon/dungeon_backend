@@ -27,11 +27,11 @@ func GenToken(ctx echo.Context) error {
     }
 
     // リンクを作成する
-    token,err := services.GenToken(args.Teamid, user.UserID)
+    token,err := services.GenLinkToken(args.Teamid, user.UserID)
 
     // エラー処理
     if err != nil {
-        utils.Println("リンク作成失敗 : " + err.Error())
+        utils.Println("リンク用トークン作成失敗 : " + err.Error())
         return ctx.JSON(500, echo.Map{
             "result": "error",
             "msg":    err.Error(),
@@ -42,5 +42,40 @@ func GenToken(ctx echo.Context) error {
     return ctx.JSON(200, echo.Map{
         "result": "success",
         "msg":    token,
+    })
+}
+
+// トークンを取得
+type InitLinkArgs struct {
+    Token string `json:"token"`
+}
+
+func InitLink(ctx echo.Context) error {
+    // トークンを取得する
+    args := new(InitLinkArgs)
+    if err := ctx.Bind(args); err != nil {
+        utils.Println("リンク初期化失敗 : " + err.Error())
+        return ctx.JSON(400, echo.Map{
+            "result": "error",
+            "msg":    err.Error(),
+        })
+    }
+
+    // ゲーム用のトークンを作成する
+    gameToken, result := services.InitLink(args.Token)
+
+    // エラー処理
+    if result.Err != nil {
+        utils.Println("ゲームトークン生成失敗 : " + result.Message)
+        return ctx.JSON(result.Code, echo.Map{
+            "result": "error",
+            "msg":    result.Message,
+        })
+    }
+
+    // リンクを返す
+    return ctx.JSON(200, echo.Map{
+        "result": "success",
+        "msg":    gameToken,
     })
 }

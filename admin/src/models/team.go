@@ -71,7 +71,7 @@ func DeleteTeam(teamid string) error {
 	}
 
 	// チームのリンクを削除する
-	result = dbconn.Delete(&Link{
+	result = dbconn.Delete(&GameLink{
 		TeamID: teamid,
 	})
 
@@ -80,7 +80,12 @@ func DeleteTeam(teamid string) error {
 		return result.Error
 	}
 
-	return nil
+	// リンク用のトークンも削除する
+	result = dbconn.Delete(&LinkToken{
+		TeamID: teamid,
+	})
+
+	return result.Error
 }
 
 func ListTeam() ([]Team, error) {
