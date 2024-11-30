@@ -33,8 +33,8 @@ func GenLinkToken(teamid string, userid string) (string, error) {
 
 	// トークンを作成
 	token, err := GenJwt(GenTokenArgs{
-		Teamid:  teamid,
-		Userid:  userid,
+		Teamid:  "",
+		Userid:  "",
 		Tokenid: tokenid,
 		Expired: expired,
 	})
