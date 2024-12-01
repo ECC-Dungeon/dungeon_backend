@@ -36,6 +36,7 @@ func InitServer() *echo.Echo {
 	{
 		linkg.POST("/token", controllers.GenToken)
 		linkg.DELETE("/remove", controllers.UnLink)
+		linkg.GET("/info", controllers.InitLink)
 	}
 
 	// 連携を初期化するエンドポイント

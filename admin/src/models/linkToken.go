@@ -9,6 +9,14 @@ type LinkToken struct {
 	CreatedAt  int64  //作成日
 }
 
+//有効期限を超えたリンクを削除する (削除件数を返す)
+func DeleteExpiredLinkToken() (int64,error) {
+	// 有効期限を超えたリンクを削除する
+	result := dbconn.Where("expiry_date < ?", utils.Now()).Delete(&LinkToken{})
+
+	return result.RowsAffected, result.Error	
+}
+
 func CreateLinkToken(teamid string, tokenid string, expiryDate int64) error {
 	// チームを取得する
 	team, err := GetTeam(teamid)

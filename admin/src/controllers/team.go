@@ -43,6 +43,14 @@ func CreateTeam(ctx echo.Context) error {
 		})
 	}
 
+	// バリデーション
+	if args.Name == "" {
+		return ctx.JSON(400, echo.Map{
+			"result": "error",
+			"msg":    "チーム名を入力してください",
+		})
+	}
+
 	// チームを作成する (ゲームIDは固定)
 	teamid, err := services.CreateTeam(args.Name, user.UserID, "f3f9577d-4b90-4180-a396-826ef9676348")
 
