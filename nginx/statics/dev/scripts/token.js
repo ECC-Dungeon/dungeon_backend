@@ -1,19 +1,15 @@
 // リンク用のトークンからゲーム用のトークンを生成
 async function GenGameToken(token) {
-    try {
-        // 送信
-        const req = await fetch("/admin/initlink", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ "token": token }),
-        });
+    // 送信
+    const req = await fetch("/admin/initlink", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ "token": token }),
+    });
 
-        return req.json();
-    } catch (ex) {
-        console.error(ex);
-    }
+    return req.json();
 }
 
 // リンクトークンを作成する

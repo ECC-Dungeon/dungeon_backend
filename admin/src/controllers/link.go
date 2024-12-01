@@ -2,8 +2,10 @@ package controllers
 
 import (
 	"admin/middlewares"
+	"admin/models"
 	"admin/services"
 	"admin/utils"
+	"net/http"
 
 	"github.com/labstack/echo/v4"
 )
@@ -114,5 +116,16 @@ func UnLink(ctx echo.Context) error {
     // レスポンスを返す
     return ctx.JSON(200, echo.Map{
         "result": "success",
+    })
+}
+
+func GetTeam(ctx echo.Context) error {
+    // チームを取得する
+    team := ctx.Get("team").(models.Team)
+
+    // チームを返す
+    return ctx.JSON(http.StatusOK, echo.Map{
+        "result": "success",
+        "msg":    team,
     })
 }
