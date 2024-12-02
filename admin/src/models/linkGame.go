@@ -89,3 +89,20 @@ func DeleteGameLink(teamid string) error {
 
 	return result.Error
 }
+
+func GetGameLink(tokenid string) (GameLink, error) {
+	// チーム取得
+	getGameLink := GameLink{}
+
+	// データベースから取得
+	result := dbconn.Where(&GameLink{
+		TokenID: tokenid,
+	}).First(&getGameLink)
+
+	// エラー処理
+	if result.Error != nil {
+		return GameLink{}, result.Error
+	}
+
+	return getGameLink, nil
+}

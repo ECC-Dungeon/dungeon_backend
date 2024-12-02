@@ -73,8 +73,17 @@ func VerifyGameToken(token string) (models.Team, utils.HttpResult) {
 		return models.Team{}, utils.NewHttpResult(http.StatusForbidden, "failed to verify token", err)
 	}
 
+	// ゲームのリンクを検証
+	gameLink, err := models.GetGameLink(args.Tokenid)
+
+	// エラー処理
+	if err != nil {
+		// トークンが存在しない場合は403を返す
+		return models.Team{}, utils.NewHttpResult(http.StatusForbidden, "token not found", err)
+	}
+
 	// チームを取得する
-	team, err := models.GetTeam(args.Teamid)
+	team, err := models.GetTeam(gameLink.TeamID)
 
 	// エラー処理
 	if err != nil {
