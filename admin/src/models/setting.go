@@ -42,6 +42,47 @@ func GetUseFloors() ([]Floors, error) {
 	return floors, result.Error
 }
 
+// 使用する階を設定
+func SetUseFloors(floors []int) error {
+	// すべてのフロアを未使用にする
+	allfloors,err := GetUseFloors()
+
+	// エラー処理
+	if err != nil {
+		return err
+	}
+
+	// 未使用にする
+	err = SetUnUseFloors(allfloors)
+
+	// エラー処理
+	if err != nil {
+		return err
+	}
+
+	// フロアを保存
+	for _, floor := range floors {
+		result := dbconn.Model(&Floors{FloorNum: floor}).Update("is_used", true)
+		if result.Error != nil {
+			return result.Error
+		}
+	}
+
+	return nil
+}
+
+func SetUnUseFloors(floors []Floors) error {
+	// フロアを保存
+	for _, floor := range floors {
+		result := dbconn.Model(&floor).Update("is_used", false)
+		if result.Error != nil {
+			return result.Error
+		}
+	}
+
+	return nil
+}
+
 func InitSetting() error {
 	// 初期化
 	err := SetSetting(IsInit, "true")

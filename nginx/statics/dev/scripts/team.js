@@ -83,3 +83,23 @@ async function RemoveLink(teamid) {
 
     return req.json();
 }
+
+async function GetFloors() {
+    try {
+        // トークンを取得
+        const token = await GetToken();
+
+        // リクエストを送る
+        const req = await fetch("/admin/game/floors", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": token,
+            },
+        });
+
+        return req.json();
+    } catch (ex) {
+        console.error(ex);
+    }
+}

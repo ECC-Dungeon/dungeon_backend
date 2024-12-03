@@ -45,6 +45,7 @@ func InitServer() *echo.Echo {
 		gameg.POST("/checktoken", controllers.CheckToken, middlewares.GameTokenAuth())
 		gameg.PUT("/tname", controllers.UpdateTeamName, middlewares.GameTokenAuth())
 		gameg.GET("/floors", controllers.UseFloors, middlewares.PocketAuth())
+		gameg.POST("/floors", controllers.SetFloors, middlewares.PocketAuth())
 		gameg.GET("/gamefloors", controllers.UseFloors, middlewares.GameTokenAuth())
 		gameg.POST("/startad", controllers.AdminGameStart, middlewares.PocketAuth())
 		gameg.POST("/stopad", controllers.AdminGameStop, middlewares.PocketAuth())

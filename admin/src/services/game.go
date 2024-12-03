@@ -31,3 +31,8 @@ func GetUseFloors() ([]models.Floors, error) {
 	// 使用する階を返す
 	return models.GetUseFloors()
 }
+
+func SetUseFloors(floorNums []int) error {
+	// 使用する階を設定
+	return models.SetUseFloors(floorNums)
+}
