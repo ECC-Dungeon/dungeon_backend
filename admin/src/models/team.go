@@ -16,6 +16,7 @@ type Team struct {
 	Name      string //チーム名
 	GameID    string //ゲームID
 	Status    Status //チームステータス
+	NickName  string //チーム名 (学生が決める)
 	Creator   string //作成者ID
 	CreatedAt int64  `gorm:"autoCreateTime"` //作成時間
 }
@@ -30,6 +31,7 @@ func CreateTeam(name string, creatorId string, gameID string) (string, error) {
 		Name:      name,
 		Status:    UnUsed,
 		GameID:    gameID,
+		NickName:  name,
 		Creator:   creatorId,
 		CreatedAt: utils.Now(),
 	})
