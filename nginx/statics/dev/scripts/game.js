@@ -89,3 +89,27 @@ nickname_form.addEventListener("submit", async (evt) => {
         console.error(ex);
     }
 });
+
+const floors_form = document.getElementById("floors_form");
+
+floors_form.addEventListener("submit", async (evt) => {
+    evt.preventDefault();
+
+    try {
+        // トークンを取得
+        const token = localStorage.getItem("game_token");
+
+        const req = await fetch("/admin/game/gamefloors", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": token,
+            },
+        });
+
+        console.log(await req.json());
+
+    } catch (ex) {
+        console.error(ex);
+    }
+});

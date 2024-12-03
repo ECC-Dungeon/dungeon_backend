@@ -40,11 +40,15 @@ func InitServer() *echo.Echo {
 
 	// チーム情報を取得するエンドポイント
 	gameg := server.Group("/game")
-	gameg.Use(middlewares.GameTokenAuth())
 	{
-		gameg.GET("/team", controllers.GetTeam)
-		gameg.POST("/checktoken", controllers.CheckToken)
-		gameg.PUT("/tname", controllers.UpdateTeamName)
+		gameg.GET("/team", controllers.GetTeam, middlewares.GameTokenAuth())
+		gameg.POST("/checktoken", controllers.CheckToken, middlewares.GameTokenAuth())
+		gameg.PUT("/tname", controllers.UpdateTeamName, middlewares.GameTokenAuth())
+		gameg.GET("/floors", controllers.UseFloors, middlewares.PocketAuth())
+		gameg.GET("/gamefloors", controllers.UseFloors, middlewares.GameTokenAuth())
+		gameg.POST("/startad", controllers.AdminGameStart, middlewares.PocketAuth())
+		gameg.POST("/stopad", controllers.AdminGameStop, middlewares.PocketAuth())
+		gameg.POST("/startmb", controllers.MobileGameStart, middlewares.GameTokenAuth())
 	}
 
 	// 連携を初期化するエンドポイント

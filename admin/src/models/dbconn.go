@@ -15,17 +15,23 @@ var (
 	dbconn *gorm.DB = nil
 )
 
+
 func Init() {
 	// データベースを開く
 	db, err := gorm.Open(sqlite.Open(os.Getenv("DBPATH")), &gorm.Config{})
 	if err != nil {
 		log.Fatal("failed to connect database")
 	}
+	
+	// グローバル変数に格納
+	dbconn = db
 
 	// マイグレーション
 	db.AutoMigrate(&Team{})
 	db.AutoMigrate(&GameLink{})
 	db.AutoMigrate(&LinkToken{})
+	db.AutoMigrate(&Setting{})
+	db.AutoMigrate(&Floors{})
 
 	// 有効期限が過ぎたリンクを削除する (ループさせる)
 	go func() {
@@ -70,6 +76,31 @@ func Init() {
 		}
 	}()
 
-	// グローバル変数に格納
-	dbconn = db
+	// データベース初期化時のみ実行
+	// 設定から初期化済みか判定
+	isInit, err := GetSetting(IsInit)
+	if err == gorm.ErrRecordNotFound {
+		// レコードがない場合
+		//初期化
+		err := InitSetting()
+
+		// エラー処理
+		if err != nil {
+			// 初期化に失敗した時
+			utils.Println("初期化失敗 : " + err.Error())
+		}
+	}
+
+	// 初期化済みではない場合
+	if isInit != "true" {
+		// 初期化
+		err := InitSetting()
+
+		// エラー処理
+		if err != nil {
+			// 初期化に失敗した時
+			utils.Println("初期化失敗 : " + err.Error())
+		}
+	}
+
 }
