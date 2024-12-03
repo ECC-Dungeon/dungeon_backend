@@ -104,3 +104,26 @@ func ListTeam() ([]Team, error) {
 
 	return teams, nil
 }
+
+func UpdateNickName(teamid string, name string) (Team, error) {
+	// チームを取得
+	team, err := GetTeam(teamid)
+
+	// エラー処理
+	if err != nil {
+		return Team{}, err
+	}
+
+	// チーム名を更新
+	team.NickName = name
+
+	// チームを更新
+	result := dbconn.Save(&team)
+
+	// エラー処理
+	if result.Error != nil {
+		return Team{}, result.Error
+	}
+
+	return team, nil
+}

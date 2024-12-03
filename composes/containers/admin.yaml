@@ -1,9 +1,12 @@
 
 services:
     admin:
-        build: ../admin
+        build: 
+            context: ../admin
+            target: Develop # デバッグ用にビルドする
         hostname: admin
         restart: always
         tty: true
         volumes:
             - ../admin/src:/root/admin
+            - ../admin/database:/admin/database

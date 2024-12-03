@@ -4,6 +4,7 @@ import (
 	"admin/utils"
 	"log"
 	"os"
+	"strconv"
 	"time"
 
 	"gorm.io/driver/sqlite"
@@ -48,7 +49,7 @@ func Init() {
 
 			//削除したときにログを出す 
 			if count > 0 {
-				utils.Println("削除したゲームリンク数 : " + string(rune(count)))
+				utils.Println("削除したゲームリンク数 : " + strconv.FormatInt(count, 10))
 			}
 
 			// 有効期限を超えたリンクを削除する
@@ -62,10 +63,10 @@ func Init() {
 
 			//削除したときにログを出す 
 			if count > 0 {
-				utils.Println("削除したリンク数 : " + string(rune(count)))
+				utils.Println("削除したリンク数 : " + strconv.FormatInt(count, 10))
 			}
 
-			time.Sleep(time.Minute * 5)
+			time.Sleep(time.Second * 5)
 		}
 	}()
 

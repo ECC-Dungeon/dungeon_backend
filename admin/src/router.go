@@ -16,7 +16,7 @@ func InitServer() *echo.Echo {
 
 	// ミドルウェア
 	server.Use(middleware.Logger())
-	server.Use(middleware.Recover())
+	// server.Use(middleware.Recover())
 
 	server.POST("/", func(ctx echo.Context) error {
 		return ctx.String(http.StatusOK, "Hello, World!")
@@ -43,6 +43,8 @@ func InitServer() *echo.Echo {
 	gameg.Use(middlewares.GameTokenAuth())
 	{
 		gameg.GET("/team", controllers.GetTeam)
+		gameg.POST("/checktoken", controllers.CheckToken)
+		gameg.PUT("/tname", controllers.UpdateTeamName)
 	}
 
 	// 連携を初期化するエンドポイント

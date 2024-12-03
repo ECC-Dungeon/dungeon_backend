@@ -37,3 +37,15 @@ func ListTeam() ([]models.Team, error) {
 
 	return teams, nil
 }
+
+func UpdateNickName(teamid string, name string) (models.Team, error) {
+	// チームを更新
+	team, err := models.UpdateNickName(teamid, name)
+
+	// エラー処理
+	if err != nil {
+		return models.Team{}, err
+	}
+
+	return team, nil
+}
