@@ -1,30 +1,16 @@
 // リンク用のトークンからゲーム用のトークンを生成
-async function GenGameToken(token) {
-    // 送信
-    const req = await fetch("/admin/initlink", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ "token": token }),
-    });
-
-    return req.json();
-}
-
-// リンクトークンを作成する
-async function GenLinkToken(teamid) {
-    // トークンを取得
+async function GenGameToken(teamid) {
+    // トークンを取得 (Pocketbase から取得)
     const token = await GetToken();
 
-    // リクエストを送る
-    const req = await fetch("/admin/link/token", {
+    // 送信
+    const req = await fetch("/admin/team/link", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
             "Authorization": token,
+            "teamid": teamid,
         },
-        body: JSON.stringify({ "teamid": teamid }),
     });
 
     return req.json();

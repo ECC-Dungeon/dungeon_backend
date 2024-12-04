@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"admin/middlewares"
 	"admin/models"
 	"admin/services"
 	"net/http"
@@ -62,99 +63,120 @@ func UpdateTeamName(ctx echo.Context) error {
 	})
 }
 
-func AdminGameStart(ctx echo.Context) error {
-	// ゲームを開始する
-	err := services.AdminGameStart()
-	if err != nil {
-		return ctx.JSON(500, echo.Map{
+type CreateGameArgs struct {
+	Name string `json:"name"`
+}
+
+func CreateGame(ctx echo.Context) error {
+	// ゲームを作成する
+	args := new(CreateGameArgs)
+	if err := ctx.Bind(args); err != nil {
+		return ctx.JSON(http.StatusInternalServerError, echo.Map{
 			"result": "error",
 			"msg":    err.Error(),
 		})
 	}
 
-	return ctx.JSON(http.StatusOK, echo.Map{
-		"result": "success",
-	})
-}
-
-// 管理者側でゲームを終了するエンドポイント
-func AdminGameStop(ctx echo.Context) error {
-	// ゲームを終了する
-	err := services.AdminGameStop()
-	if err != nil {
-		return ctx.JSON(500, echo.Map{
+	// バリデーション
+	if args.Name == "" {
+		return ctx.JSON(http.StatusBadRequest, echo.Map{
 			"result": "error",
-			"msg":    err.Error(),
+			"msg":    "ゲーム名を入力してください",
 		})
 	}
 
-	return ctx.JSON(http.StatusOK, echo.Map{
-		"result": "success",
-	})
-}
+	// ユーザーを取得する
+	user := ctx.Get("user").(middlewares.UserData)
 
-// スマホ側でゲームを開始するエンドポイント
-func MobileGameStart(ctx echo.Context) error {
-	// ゲームが開始されているか
-	isStarted, err := services.IsGameStarted()
+	// ゲームを作成する
+	game, err := services.CreateGame(args.Name,user.UserID)
 
 	// エラー処理
 	if err != nil {
-		return ctx.JSON(500, echo.Map{
+		return ctx.JSON(http.StatusInternalServerError, echo.Map{
 			"result": "error",
 			"msg":    err.Error(),
 		})
 	}
 
+	// チームを返す
 	return ctx.JSON(http.StatusOK, echo.Map{
 		"result": "success",
-		"msg":    isStarted,
+		"msg":    game,
 	})
 }
 
-// 仕様フロアを取得するエンドポイント
-func UseFloors(ctx echo.Context) error {
-	// フロアを使用する
-	floors, err := services.GetUseFloors()
+func GetGames(ctx echo.Context) error {
+	// ゲームを取得する
+	games, err := services.GetGames()
+
+	// エラー処理
 	if err != nil {
-		return ctx.JSON(500, echo.Map{
+		return ctx.JSON(http.StatusInternalServerError, echo.Map{
 			"result": "error",
 			"msg":    err.Error(),
 		})
 	}
 
+	// チームを返す
 	return ctx.JSON(http.StatusOK, echo.Map{
 		"result": "success",
-		"msg":    floors,
+		"msg":    games,
 	})
 }
 
-type SetFloorsArgs struct {
+func DeleteGame(ctx echo.Context) error {
+	// ゲームID を取得する
+	gameid := ctx.Request().Header.Get("gameid")
+
+	// バリデーション
+	if gameid == "" {
+		return ctx.JSON(http.StatusBadRequest, echo.Map{
+			"result": "error",
+			"msg":    "ゲームIDを入力してください",
+		})
+	}
+
+	// チームを削除する
+	err := services.DeleteGame(gameid)
+
+	// エラー処理
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, echo.Map{
+			"result": "error",
+			"msg":    err.Error(),
+		})
+	}
+
+	// 結果を返す
+	return ctx.JSON(http.StatusOK, echo.Map{
+		"result": "success",
+	})
+}
+
+type SetFloorArgs struct {
 	Floors []int `json:"floors"`
 }
 
-func SetFloors(ctx echo.Context) error {
-	//bind
-	args := new(SetFloorsArgs)
+func SetFloor(ctx echo.Context) error {
+	// ゲームID を取得する
+	gameid := ctx.Request().Header.Get("gameid")
+
+	// バリデーション
+	if gameid == "" {
+		return ctx.JSON(http.StatusBadRequest, echo.Map{
+			"result": "error",
+			"msg":    "ゲームIDを入力してください",
+		})
+	}
+
+	// body を取得する
+	args := new(SetFloorArgs)
 	if err := ctx.Bind(args); err != nil {
-		return ctx.JSON(500, echo.Map{
+		return ctx.JSON(http.StatusInternalServerError, echo.Map{
 			"result": "error",
 			"msg":    err.Error(),
 		})
 	}
 
-	// 使用する階を設定
-	err := services.SetUseFloors(args.Floors)
-
-	// エラー処理
-	if err != nil {
-		return ctx.JSON(500, echo.Map{
-			"result": "error",
-			"msg":    err.Error(),
-		})
-	}
-
-	return ctx.JSON(http.StatusOK, echo.Map{
-		"result": "success",
-	})
-}
+	

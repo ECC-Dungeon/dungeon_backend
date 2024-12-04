@@ -1,0 +1,25 @@
+package services
+
+import (
+	"admin/utils"
+	"net/http"
+)
+
+const (
+	// 15分を有効期限とする (秒)
+	LinkTokenExpired = 15 * 60
+)
+
+// ゲーム用のトークンを作成
+func GenGameLink(teamid string) (string, utils.HttpResult) {
+	//ゲーム用のトークンを作成
+	gameToken, err := GenGameLink(teamid)
+
+	// エラー処理
+	if err != nil {
+		// トークンの作成に失敗した場合は500を返す
+		return "", utils.NewHttpResult(http.StatusInternalServerError, "failed to create game token", err)
+	}
+	
+	return gameToken, utils.NewHttpResult(http.StatusOK, "success", nil)
+}

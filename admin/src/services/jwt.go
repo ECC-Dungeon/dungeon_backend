@@ -7,6 +7,14 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+
+type GenTokenArgs struct {
+	Teamid  string `json:"teamid"`
+	Userid  string `json:"userid"`
+	Tokenid string `json:"tokenid"`
+	Expired int64  `json:"expired"`
+}
+
 func ParseToken(tokenString string) (GenTokenArgs, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		// トークンの検証

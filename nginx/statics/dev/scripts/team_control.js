@@ -1,3 +1,6 @@
+//ゲームid取得 (queryパラメータ)
+const gameid = new URLSearchParams(window.location.search).get("gameid");
+
 const create_team = document.getElementById("create_team");
 
 create_team.addEventListener("submit", async (evt) => {
@@ -11,12 +14,12 @@ create_team.addEventListener("submit", async (evt) => {
         };
 
         // チーム作成実行
-        const team = await CreateTeam(data.name);
+        const team = await CreateTeam(data.name,gameid);
 
         console.log(team);
 
         // チームリスト更新
-        await RefreshTeam();
+        await RefreshTeam(gameid);
 
     } catch (ex) {
         console.error(ex);
@@ -27,7 +30,7 @@ create_team.addEventListener("submit", async (evt) => {
 const teamlist = document.getElementById("team_list");
 
 // チームを表示する関数
-function ShowTeam(id, name, creator, status) {
+function ShowTeam(id, name, creator, status, nickName) {
     const basetr = document.createElement("tr");
 
     // チームID
@@ -46,6 +49,10 @@ function ShowTeam(id, name, creator, status) {
     const statustd = document.createElement("td");
     statustd.textContent = status;
 
+    // ニックネーム表示
+    const nicktd = document.createElement("td");
+    nicktd.textContent = nickName;
+
     // 削除ボタン
     const buttontd = document.createElement("td");
     const delbtn = document.createElement("button");
@@ -54,7 +61,7 @@ function ShowTeam(id, name, creator, status) {
         console.log(await DeleteTeam(id));
 
         // リロード
-        await RefreshTeam();
+        await RefreshTeam(gameid);
     });
     buttontd.appendChild(delbtn);
 
@@ -64,7 +71,7 @@ function ShowTeam(id, name, creator, status) {
     tokenbtn.addEventListener("click", async () => {
         try {
             // トークンを取得
-            const token_data = await GenLinkToken(id);
+            const token_data = await GenGameToken(id);
 
             // トークンを表示
             console.log(token_data["msg"]);
@@ -95,86 +102,18 @@ function ShowTeam(id, name, creator, status) {
     basetr.appendChild(nametd);
     basetr.appendChild(creatortd);
     basetr.appendChild(statustd);
+    basetr.appendChild(nicktd);
     basetr.appendChild(buttontd);
 
     teamlist.appendChild(basetr);
 }
 
-
-// 使用する階を設定するフォーム
-const floors_form = document.getElementById("floors_form");
-
-floors_form.addEventListener("submit", async (evt) => {
-    evt.preventDefault();
-
-    try {
-        // フォームからデータ取得
-        const formData = new FormData(floors_form);
-
-        // リストにする
-        const floors = [];
-
-        // for of を使ってチェックボックスを取得
-        for (const floor of formData.getAll("floors")) {
-            floors.push(Number(floor));
-        }
-
-        // トークンを取得
-        const token = await GetToken();
-
-        // リクエストを送る
-        const req = await fetch("/admin/game/floors", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": token,
-            },
-            body: JSON.stringify({ "floors": floors }),
-        });
-
-        console.log(await req.json());
-
-    } catch (ex) {
-        console.error(ex);
-    }
-});
-
-// 階のチェックを表示するエリア
-const floors_area = document.getElementById("floors_area");
-
 // 初期化関数
 async function Init() {
     try {
         // チームリスト更新
-        await RefreshTeam();
+        await RefreshTeam(gameid);
 
-        // 使用する階を設定を取得
-        const floors = await GetFloors();
-        
-        floors["msg"].forEach((floor) => {
-            // チェックボックスを作成
-            const checkbox = document.createElement("input");
-            checkbox.type = "checkbox";
-            checkbox.id = "floor_" + floor["FloorNum"];
-            checkbox.name = "floors";
-            checkbox.value = floor["FloorNum"];
-            // チェックボックスにチェックを入れる
-            checkbox.checked = floor["IsUsed"];
-            checkbox.classList.add("form-check-input");
-
-            // ラベルを作成
-            const label = document.createElement("label");
-            label.htmlFor = "floor_" + floor["FloorNum"];
-            label.textContent = floor["FloorNum"];
-            label.classList.add("form-check-label");
-
-            // チェックボックスとラベルを追加
-            floors_area.appendChild(checkbox);
-            floors_area.appendChild(label);
-
-            // 改行を追加
-            floors_area.appendChild(document.createElement("br"));
-        })
     } catch (ex) {
         console.error(ex);
         // alert("取得に失敗しました");

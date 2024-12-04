@@ -16,7 +16,7 @@ func InitServer() *echo.Echo {
 
 	// ミドルウェア
 	server.Use(middleware.Logger())
-	// server.Use(middleware.Recover())
+	server.Use(middleware.Recover())
 
 	server.POST("/", func(ctx echo.Context) error {
 		return ctx.String(http.StatusOK, "Hello, World!")
@@ -26,34 +26,43 @@ func InitServer() *echo.Echo {
 	teamg := server.Group("/team")
 	teamg.Use(middlewares.PocketAuth())
 	{
-		teamg.GET("/list", controllers.ListTeam)
-		teamg.POST("/create", controllers.CreateTeam)
-		teamg.DELETE("/delete", controllers.DeleteTeam)
-	}
+		// チームを作成する エンドポイント
+		teamg.POST("/create", controllers.CreateTeam)   //確認済み
 
-	linkg := server.Group("/link")
-	linkg.Use(middlewares.PocketAuth())
-	{
-		linkg.POST("/token", controllers.GenToken)
-		linkg.DELETE("/remove", controllers.UnLink)
+		// チームを削除する エンドポイント
+		teamg.DELETE("/delete", controllers.DeleteTeam) //確認済み
+
+		// ゲーム用のトークンを生成する エンドポイント
+		teamg.POST("/link", controllers.GenGameToken)   //確認済み
+
+		// ゲーム用のトークンを削除する エンドポイント
+		teamg.DELETE("/unlink", controllers.UnLink)     //確認済み
+
+		// ゲームのチーム一覧
+		teamg.GET("/list", controllers.ListTeam) //確認済み
 	}
 
 	// チーム情報を取得するエンドポイント
 	gameg := server.Group("/game")
 	{
-		gameg.GET("/team", controllers.GetTeam, middlewares.GameTokenAuth())
-		gameg.POST("/checktoken", controllers.CheckToken, middlewares.GameTokenAuth())
-		gameg.PUT("/tname", controllers.UpdateTeamName, middlewares.GameTokenAuth())
-		gameg.GET("/floors", controllers.UseFloors, middlewares.PocketAuth())
-		gameg.POST("/floors", controllers.SetFloors, middlewares.PocketAuth())
-		gameg.GET("/gamefloors", controllers.UseFloors, middlewares.GameTokenAuth())
-		gameg.POST("/startad", controllers.AdminGameStart, middlewares.PocketAuth())
-		gameg.POST("/stopad", controllers.AdminGameStop, middlewares.PocketAuth())
-		gameg.POST("/startmb", controllers.MobileGameStart, middlewares.GameTokenAuth())
-	}
+		// ゲーム一覧を取得するエンドポイント
+		gameg.GET("/list", controllers.GetGames, middlewares.PocketAuth())
 
-	// 連携を初期化するエンドポイント
-	server.POST("/initlink", controllers.InitLink)
+		// ゲームを作成するエンドポイント
+		gameg.POST("/create", controllers.CreateGame, middlewares.PocketAuth()) //確認済み
+
+		// チームを取得する
+		gameg.GET("/team", controllers.GetTeam, middlewares.GameTokenAuth()) //確認済み
+
+		// チーム名を更新する
+		gameg.PUT("/tname", controllers.UpdateTeamName, middlewares.GameTokenAuth()) //確認済み
+
+		// ゲームを削除する
+		gameg.DELETE("/delete", controllers.DeleteGame, middlewares.PocketAuth()) //確認済み
+
+		// floor を設定する
+		gameg.POST("/floor", controllers.SetFloor, middlewares.GameTokenAuth())
+	}
 
 	return server
 }

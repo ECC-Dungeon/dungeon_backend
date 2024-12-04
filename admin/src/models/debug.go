@@ -20,12 +20,24 @@ func Debug() {
 	// チームを作成するユーザー
 	doUser := "a7c3897d-1667-49c1-92a6-90a985e540af"
 	TokenID := "471b9794-710b-4764-b9a0-ba3af0bea0e0"
-	Gameid := "c1734747-e0ad-470e-9e64-e07122ca04f5"
 	expired := time.Now().Add(time.Duration(time.Minute * 5))
 
 	// 区切り線表示
 	utils.ShowLine()
-	teamid, err := debugCreateTeam(doUser, Gameid)
+	utils.Println("チーム作成をテスト")
+
+	// ゲームを作成する機能をデバッグする
+	gameid, err := debugCreateGame(doUser)
+
+	// エラー処理
+	if err != nil {
+		utils.Println("ゲーム作成テスト失敗")
+		return
+	}
+
+	// 区切り線表示
+	utils.ShowLine()
+	teamid, err := debugCreateTeam(doUser, gameid)
 
 	// エラー処理
 	if err != nil {
@@ -45,6 +57,16 @@ func Debug() {
 	}
 
 	utils.Println("チーム取得成功")
+
+	// フロアを作成する機能をデバッグする
+	err = debugCreateFloor(gameid)
+
+	// エラー処理
+	if err != nil {
+		utils.Println("フロア作成エラー : " + err.Error())
+		return
+	}
+
 	// 区切り線を表示
 	utils.ShowLine()
 	utils.Println("リンク作成をテスト")
@@ -65,10 +87,27 @@ func Debug() {
 	utils.ShowLine()
 }
 
+func debugCreateGame(creatorID string) (string, error) {
+	utils.Println("ゲーム作成をテスト")
+	// チームを作成する
+	game, err := CreateGame("test",creatorID)
+
+	// エラー処理
+	if err != nil {
+		utils.Println("ゲーム作成エラー : " + err.Error())
+		return "", err
+	}
+
+	utils.Println("作成したゲーム : " + game.GameID)
+	utils.Println("作成成功")
+
+	return game.GameID, nil
+}
+
 func debugCreateTeam(doUser string, gameid string) (string, error) {
 	utils.Println("チーム作成をテスト")
 	// チームを作成する
-	teamid, err := CreateTeam("wao", doUser, gameid)
+	team, err := CreateTeam("wao", doUser, gameid)
 
 	// エラー処理
 	if err != nil {
@@ -76,15 +115,24 @@ func debugCreateTeam(doUser string, gameid string) (string, error) {
 		return "", err
 	}
 
-	utils.Println("作成したチーム : " + teamid)
+	utils.Println("作成したチーム : " + team.TeamID)
 	utils.Println("作成成功")
 
-	return teamid, nil
+	return team.TeamID, nil
 }
 
 func debugLinkTeam(teamid string, tokenid string, expired time.Time) error {
+	// ちーむを取得する
+	team,err := GetTeam(teamid)
+
+	// エラー処理
+	if err != nil {
+		utils.Println("チーム取得失敗 : " + err.Error())
+		return err
+	}
+
 	// // 関連付けを作成する
-	err := CreateGameLink(teamid, tokenid, expired.Unix())
+	err = team.RegisterGameLink(tokenid, expired.Unix())
 
 	// エラー処理
 	if err != nil {
@@ -94,18 +142,7 @@ func debugLinkTeam(teamid string, tokenid string, expired time.Time) error {
 
 	utils.Println("リンク作成成功")
 
-	// 存在しないチームのリンク作成
-	utils.Println("存在しないチームのリンク作成")
-	// // 関連付けを作成する
-	err = CreateGameLink(teamid+"b", tokenid, expired.Unix())
-
-	// エラー処理
-	if err != nil {
-		utils.Println("リンク失敗 (成功)")
-		return nil
-	}
-
-	return err
+	return nil
 }
 
 func debugGetTeam(teamid string) error {
@@ -139,4 +176,43 @@ func debugGetTeam(teamid string) error {
 	utils.Println("存在しないチーム取得 (失敗) 取得したID : " + team2.TeamID)
 
 	return err
+}
+
+func debugCreateFloor(gameid string) error {
+	// ゲームを取得する
+	game, err := GetGame(gameid)
+	
+	// エラー処理
+	if err != nil {
+		utils.Println("ゲーム取得失敗 : " + err.Error())
+		return err
+	}
+
+	utils.Println("フロア作成をテスト")
+	// フロアを作成
+	err = game.AddFloor(1)
+
+	// エラー処理
+	if err != nil {
+		utils.Println("フロア作成失敗 : " + err.Error())
+		return err
+	}
+
+	// 3つ作成する
+	err = game.AddFloor(2)
+	if err != nil {
+		utils.Println("フロア作成失敗 : " + err.Error())
+		return err
+	}
+
+	// 3つ作成する
+	err = game.AddFloor(3)
+	if err != nil {
+		utils.Println("フロア作成失敗 : " + err.Error())
+		return err
+	}
+
+	utils.Println("作成成功")
+
+	return nil
 }

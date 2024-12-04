@@ -2,37 +2,46 @@ package services
 
 import "admin/models"
 
-func AdminGameStart() error {
-	// ゲームを開始
-	err := models.SetSetting(models.IsGameStart, "true")
+func CreateGame(name string, creatorID string) (string, error) {
+	// 作成
+	game, err := models.CreateGame(name, creatorID)
 
-	return err
-}
-
-func AdminGameStop() error {
-	// ゲームを終了
-	err := models.SetSetting(models.IsGameStart, "false")
-
-	return err
-}
-
-func IsGameStarted() (bool, error) {
-	// ゲームを開始しているかどうかを返す
-	isStarted, err := models.GetSetting(models.IsGameStart)
-
+	// エラー処理
 	if err != nil {
-		return false, err
+		return "", err
 	}
 
-	return isStarted == "true", nil
+	return game.GameID, nil
 }
 
-func GetUseFloors() ([]models.Floors, error) {
-	// 使用する階を返す
-	return models.GetUseFloors()
+func GetGames() ([]models.Game, error) {
+	// ゲームを取得する
+	games, err := models.GetGames()
+
+	// エラー処理
+	if err != nil {
+		return nil, err
+	}
+
+	return games, nil
 }
 
-func SetUseFloors(floorNums []int) error {
-	// 使用する階を設定
-	return models.SetUseFloors(floorNums)
+func DeleteGame(gameid string) error {
+	// ゲーム取得
+	game, err := models.GetGame(gameid)
+
+	// エラー処理
+	if err != nil {
+		return err
+	}
+
+	// ゲームを削除する
+	err = game.Delete()
+
+	// エラー処理
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

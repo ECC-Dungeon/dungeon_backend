@@ -1,6 +1,5 @@
-// ゲームトークンを取得
-
-async function ListTeam() {
+// ゲームのチームを取得
+async function ListTeam(gameid) {
     // トークンを取得
     const token = await GetToken();
 
@@ -10,6 +9,7 @@ async function ListTeam() {
         headers: {
             "Content-Type": "application/json",
             "Authorization": token,
+            "gameid": gameid
         },
     });
 
@@ -17,15 +17,15 @@ async function ListTeam() {
 }
 
 // チームリストを更新
-async function RefreshTeam() {
+async function RefreshTeam(gameid) {
     // チームリストをクリア
     teamlist.innerHTML = "";
 
-    const teams = await ListTeam();
+    const teams = await ListTeam(gameid);
     console.log(teams["msg"]);
 
     teams["msg"].forEach((team) => {
-        ShowTeam(team["TeamID"], team["Name"], team["Creator"], team["Status"]);
+        ShowTeam(team["TeamID"], team["Name"], team["Creator"], team["Status"], team["NickName"]);
     });
 }
 
@@ -49,7 +49,7 @@ async function DeleteTeam(teamid) {
 
 
 // 関数をまとめた処理
-async function CreateTeam(name) {
+async function CreateTeam(name,gameid) {
     // トークンを取得
     const token = await GetToken();
 
@@ -60,7 +60,10 @@ async function CreateTeam(name) {
             "Content-Type": "application/json",
             "Authorization": token,
         },
-        body: JSON.stringify({ "name": name }),
+        body: JSON.stringify({ 
+            "name": name,
+            "gameid": gameid
+        }),
     });
 
     return req.json();
@@ -72,7 +75,7 @@ async function RemoveLink(teamid) {
     const token = await GetToken();
 
     // リクエストを送る
-    const req = await fetch("/admin/link/remove", {
+    const req = await fetch("/admin/team/unlink", {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json",
@@ -82,24 +85,4 @@ async function RemoveLink(teamid) {
     });
 
     return req.json();
-}
-
-async function GetFloors() {
-    try {
-        // トークンを取得
-        const token = await GetToken();
-
-        // リクエストを送る
-        const req = await fetch("/admin/game/floors", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": token,
-            },
-        });
-
-        return req.json();
-    } catch (ex) {
-        console.error(ex);
-    }
 }

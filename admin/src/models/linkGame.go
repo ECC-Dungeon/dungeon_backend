@@ -10,7 +10,7 @@ type GameLink struct {
 }
 
 // 有効期限を超えたリンクを削除する (削除件数を返す)
-func DeleteExpiredGameLink() (int64,error) {
+func DeleteExpiredGameLink() (int64, error) {
 	// 有効期限を超えたリンクを取得する
 	gameLinks := []GameLink{}
 	result := dbconn.Where("expiry_date < ?", utils.Now()).Find(&gameLinks)
@@ -24,9 +24,18 @@ func DeleteExpiredGameLink() (int64,error) {
 	deleteCount := 0
 
 	// 有効期限を超えたリンクを削除する
-	for _ , gameLink := range gameLinks {
-		// リンクを削除する
-		err := DeleteGameLink(gameLink.TeamID)
+	for _, gameLink := range gameLinks {
+		// チームを取得する
+		team, err := GetTeam(gameLink.TeamID)
+
+		// エラー処理
+		if err != nil {
+			utils.Println("チーム取得失敗 : " + err.Error())
+			continue
+		}
+
+		// リンクの登録を解除する
+		err = team.UnregisterGameLink()
 
 		// エラー処理
 		if err != nil {
@@ -41,14 +50,27 @@ func DeleteExpiredGameLink() (int64,error) {
 	return int64(deleteCount), nil
 }
 
-func CreateGameLink(teamid string, tokenid string, expiryDate int64) error {
-	// チームを取得する
-	team, err := GetTeam(teamid)
+// ゲーム用のトークンの登録を解除
+func (team *Team) UnregisterGameLink() error {
+	// リンクを削除する
+	result := dbconn.Where(&GameLink{
+		TeamID: team.TeamID,
+	}).Delete(&GameLink{})
 
 	// エラー処理
-	if err != nil {
-		return err
+	if result.Error != nil {
+		return result.Error
 	}
+
+	// チームを未使用にする
+	result = dbconn.Model(&team).Update("status", UnUsed)
+
+	return result.Error
+}
+
+// ゲーム用のトークンを登録
+func (team *Team) RegisterGameLink(tokenid string, expiryDate int64) error {
+	// チームを取得する
 
 	// リンクを作成する
 	result := dbconn.Save(&GameLink{
@@ -64,28 +86,7 @@ func CreateGameLink(teamid string, tokenid string, expiryDate int64) error {
 	}
 
 	// チームを使用中にする
-	result = dbconn.Model(&Team{
-		TeamID: teamid,
-	}).Update("status", Used)
-
-	return result.Error
-}
-
-func DeleteGameLink(teamid string) error {
-	// リンクを削除する
-	result := dbconn.Where(&GameLink{
-		TeamID: teamid,
-	}).Delete(&GameLink{})
-
-	// エラー処理
-	if result.Error != nil {
-		return result.Error
-	}
-
-	// チームを未使用にする
-	result = dbconn.Model(&Team{
-		TeamID: teamid,
-	}).Update("status", UnUsed)
+	result = dbconn.Model(&team).Update("status", Used)
 
 	return result.Error
 }

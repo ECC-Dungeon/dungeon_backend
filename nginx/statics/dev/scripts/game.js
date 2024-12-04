@@ -1,38 +1,3 @@
-const read_form = document.getElementById("read_token_form");
-
-read_form.addEventListener("submit", async (evt) => {
-    evt.preventDefault();
-
-    try {
-        // フォームからデータ取得
-        const formData = new FormData(read_form);
-        const data = {
-            token: formData.get("token"),
-        };
-
-        // トークン読み込み実行
-        const gameData = await GenGameToken(data.token);
-        if (gameData["msg"] == undefined) {
-            alert("ゲーム用トークンを取得できませんでした");
-            return;
-        }
-
-        console.log(gameData["msg"]);
-
-        // ローカルストレージに保存
-        localStorage.setItem("game_token", gameData["msg"]);
-
-    } catch (ex) {
-        console.error(ex);
-    }
-});
-
-async function GetTeam() {
-    // チーム情報取得
-    const teamData = await GetTeamInfo();
-
-    console.log(teamData["msg"]);
-}
 
 async function GetTeamInfo() {
     // ローカルストレージから取得
@@ -56,60 +21,69 @@ async function GetTeamInfo() {
     return req.json();
 }
 
-const nickname_form = document.getElementById("nickname_form");
+async function CreateGame(name) {
+    // pocketbase からトークンを取得
+    const token = await GetToken();
 
-nickname_form.addEventListener("submit", async (evt) => {
-    evt.preventDefault();
+    // 送信
+    const req = await fetch("/admin/game/create", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": token,
+        },
+        body: JSON.stringify({ "name": name }),
+    });
 
-    try {
-        // トークンを取得
-        const token = localStorage.getItem("game_token");
+    return req.json();
+}
 
-        // フォームからデータ取得
-        const formData = new FormData(nickname_form);
-        const data = {
-            nickname: formData.get("nickname"),
-        };
+async function CreateGame(name) {
+    //pocketbase からトークンを取得
+    const token = await GetToken();
 
-        // ニックネーム保存実行
-        const req = await fetch("/admin/game/tname", {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": token,
-            },
-            body: JSON.stringify({
-                "name": data.nickname
-            }),
-        });
+    // 送信
+    const req = await fetch("/admin/game/create", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": token,
+        },
+        body: JSON.stringify({ "name": name }),
+    });
 
-        console.log(await req.json());
+    return req.json();
+}
 
-    } catch (ex) {
-        console.error(ex);
-    }
-});
+async function GetGames() {
+    //pocketbase からトークンを取得
+    const token = await GetToken();
 
-const floors_form = document.getElementById("floors_form");
+    // 送信
+    const req = await fetch("/admin/game/list", {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": token,
+        },
+    });
 
-floors_form.addEventListener("submit", async (evt) => {
-    evt.preventDefault();
+    return req.json();
+}
 
-    try {
-        // トークンを取得
-        const token = localStorage.getItem("game_token");
+async function DeleteGame(gameid) {
+    // ゲーム削除
+    const token = await GetToken();
 
-        const req = await fetch("/admin/game/gamefloors", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": token,
-            },
-        });
+    // 送信
+    const req = await fetch("/admin/game/delete", {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": token,
+            "gameid": gameid
+        },
+    });
 
-        console.log(await req.json());
-
-    } catch (ex) {
-        console.error(ex);
-    }
-});
+    return req.json();
+}

@@ -11,7 +11,8 @@ const (
 	GameTokenExpired = 24 * 60 * 60
 )
 
-func GenGameLink(teamid string) (string, error) {
+// ゲーム用のトークン生成
+func GenGameLink(teamid string) (string, utils.HttpResult) {
 	// トークンのidを作成
 	tokenid := utils.GenID()
 
@@ -27,32 +28,40 @@ func GenGameLink(teamid string) (string, error) {
 
 	// エラー処理
 	if err != nil {
-		return "", err
+		return "", utils.NewHttpResult(http.StatusInternalServerError, "failed to generate token", err)
+	}
+
+	// チームを取得する
+	team, err := models.GetTeam(teamid)
+
+	// エラー処理
+	if err != nil {
+		return "", utils.NewHttpResult(http.StatusInternalServerError, "failed to get team", err)
 	}
 
 	// リンク用のトークンを作成
-	err = models.CreateGameLink(teamid, tokenid, expired)
+	err = team.RegisterGameLink(tokenid, expired)
 
 	// エラー処理
 	if err != nil {
-		return "", err
+		return "", utils.NewHttpResult(http.StatusInternalServerError, "failed to register token", err)
 	}
 
-	return token, nil
+	return token, utils.NewHttpResult(http.StatusOK, "success", nil)
 }
 
-func UnLink(teamid string, tokenid string) utils.HttpResult {
-	//　ゲーム用のトークンを削除
-	err := models.DeleteGameLink(teamid)
+// ゲーム用のトークン削除
+func UnLink(teamid string) utils.HttpResult {
+	// チームを取得する
+	team, err := models.GetTeam(teamid)
 
 	// エラー処理
 	if err != nil {
-		// トークンの削除に失敗した場合は500を返す
-		return utils.NewHttpResult(http.StatusInternalServerError, "failed to delete token", err)
+		return utils.NewHttpResult(http.StatusInternalServerError, "failed to get team", err)
 	}
 
-	// リンク用のトークンを削除
-	err = models.DeleteLinkToken(teamid)
+	//　ゲーム用のトークンを削除
+	err = team.UnregisterGameLink()
 
 	// エラー処理
 	if err != nil {

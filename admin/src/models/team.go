@@ -1,8 +1,6 @@
 package models
 
-import (
-	"admin/utils"
-)
+import "admin/utils"
 
 type Status string
 
@@ -21,103 +19,22 @@ type Team struct {
 	CreatedAt int64  `gorm:"autoCreateTime"` //作成時間
 }
 
-func CreateTeam(name string, creatorId string, gameID string) (string, error) {
+func CreateTeam(teamName string, gameID string, creatorID string) (Team, error) {
 	// ID を作成する
-	teamID := utils.GenID()
+	TeamID := utils.GenID()
 
 	// チームを作成する
-	result := dbconn.Save(&Team{
-		TeamID:    teamID,
-		Name:      name,
-		Status:    UnUsed,
+	team := Team{
+		TeamID:    TeamID,
+		Name:      teamName,
 		GameID:    gameID,
-		NickName:  name,
-		Creator:   creatorId,
+		Status:    UnUsed,
+		NickName:  teamName,
+		Creator:   creatorID,
 		CreatedAt: utils.Now(),
-	})
-
-	// エラー処理
-	if result.Error != nil {
-		return "", result.Error
 	}
 
-	return teamID, nil
-}
-
-func GetTeam(teamid string) (Team, error) {
-	// チーム取得
-	getTeam := Team{}
-
-	// データベースから取得
-	result := dbconn.Where(&Team{
-		TeamID: teamid,
-	}).First(&getTeam)
-
-	// エラー処理
-	if result.Error != nil {
-		return Team{}, result.Error
-	}
-
-	return getTeam, nil
-}
-
-func DeleteTeam(teamid string) error {
-	// チームを削除する
-	result := dbconn.Delete(&Team{
-		TeamID: teamid,
-	})
-
-	// エラー処理
-	if result.Error != nil {
-		return result.Error
-	}
-
-	// チームのリンクを削除する
-	result = dbconn.Delete(&GameLink{
-		TeamID: teamid,
-	})
-
-	// エラー処理
-	if result.Error != nil {
-		return result.Error
-	}
-
-	// リンク用のトークンも削除する
-	result = dbconn.Delete(&LinkToken{
-		TeamID: teamid,
-	})
-
-	return result.Error
-}
-
-func ListTeam() ([]Team, error) {
-	// チームを取得する
-	var teams []Team
-
-	// チームを取得
-	result := dbconn.Find(&teams)
-
-	// エラー処理
-	if result.Error != nil {
-		return nil, result.Error
-	}
-
-	return teams, nil
-}
-
-func UpdateNickName(teamid string, name string) (Team, error) {
-	// チームを取得
-	team, err := GetTeam(teamid)
-
-	// エラー処理
-	if err != nil {
-		return Team{}, err
-	}
-
-	// チーム名を更新
-	team.NickName = name
-
-	// チームを更新
+	// チームを作成する
 	result := dbconn.Save(&team)
 
 	// エラー処理
@@ -126,4 +43,52 @@ func UpdateNickName(teamid string, name string) (Team, error) {
 	}
 
 	return team, nil
+}
+
+// チームを取得
+func GetTeam(teamid string) (Team, error) {
+	var team Team
+
+	// チームを取得
+	result := dbconn.Where(&Team{
+		TeamID: teamid,
+	}).First(&team)
+
+	return team, result.Error
+}
+
+// チームを削除する処理
+func (team *Team) Delete() error {
+	// トークンを削除する
+	err := team.UnregisterGameLink()
+
+	// エラー処理
+	if err != nil {
+		return err
+	}
+
+	// チームを削除する
+	result := dbconn.Delete(team)
+
+	// エラー処理
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+// チームのニックネームを更新
+func (team *Team) UpdateNickName(name string) error {
+	team.NickName = name
+
+	// チームを更新する
+	result := dbconn.Save(team)
+
+	// エラー処理
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
 }
