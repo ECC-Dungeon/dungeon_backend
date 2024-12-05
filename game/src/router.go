@@ -2,6 +2,7 @@ package main
 
 import (
 	// "game/controllers"
+	"game/controllers"
 	"game/middlewares"
 	"net/http"
 
@@ -19,7 +20,9 @@ func InitServer() *echo.Echo {
 
 	server.POST("/", func(ctx echo.Context) error {
 		return ctx.String(http.StatusOK, "Hello, World!")
-	},middlewares.PocketAuth())
-	
+	}, middlewares.GameAuth())
+
+	server.POST("/next",controllers.NextFloor)
+
 	return server
 }

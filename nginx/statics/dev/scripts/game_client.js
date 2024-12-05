@@ -105,3 +105,15 @@ async function StartGame() {
 
     console.log(await req.json());
 }
+
+async function GameTest() {
+    const req = await fetch("/game/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": localStorage.getItem("game_token"),
+        },
+    });
+
+    console.log(await req.json());
+}
