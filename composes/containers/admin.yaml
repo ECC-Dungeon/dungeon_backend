@@ -3,7 +3,7 @@ services:
     admin:
         build: 
             context: ../admin
-            target: Develop # デバッグ用にビルドする
+            # target: Develop # デバッグ用にビルドする
         hostname: admin
         restart: always
         tty: true
