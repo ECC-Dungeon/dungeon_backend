@@ -1,0 +1,9 @@
+
+services:
+    game:
+        build: ../game
+        hostname: game
+        restart: always
+        tty: true
+        volumes:
+            - ../game/src:/root/game
