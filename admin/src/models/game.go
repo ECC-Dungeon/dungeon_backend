@@ -36,7 +36,7 @@ func CreateGame(name string, creatorID string) (Game, error) {
 	// フロアを作成する
 	for i := 1; i < 8; i++ {
 		// フロアを作成する
-		err := game.AddFloor(i,"フロア名")
+		err := game.AddFloor(i,"フロア名",false)
 
 		// エラー処理
 		if err != nil {

@@ -17,7 +17,7 @@ create_team.addEventListener("submit", async (evt) => {
         const team = await CreateTeam(data.name,gameid);
 
         console.log(team);
-
+        
         // チームリスト更新
         await RefreshTeam(gameid);
 
@@ -114,14 +114,42 @@ floors_form.addEventListener("submit", async (evt) => {
     evt.preventDefault();
 
     try {
-        // フォームからデータ取得
-        const formData = new FormData(floors_form);
-        const data = {
-            floors: formData.get("floors"),
+        let send_list = [];
+
+        // for で回す
+        for (const [key, value] of Object.entries(floors_map)) {
+            // チェックボックスの値を取得
+            const checked = value["checkbox"].checked;
+            const floorName = value["input"].value;
+            
+            // リストに追加
+            send_list.push({
+                floorNum: Number(key),
+                checked: checked,
+                name : floorName
+            });
         };
 
-        console.log(data.floors);
+        console.log(send_list);
 
+        // トークンを取得
+        const token = await GetToken();
+
+        // フロア更新
+        const req = await fetch("/admin/game/floor", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": token,
+                "gameid": gameid
+            },
+            body: JSON.stringify({
+                "floors": send_list
+            }),
+        })
+
+        console.log(await req.json());
+    
         // チームリスト更新
         await RefreshTeam(gameid);
 
@@ -147,9 +175,12 @@ async function GetFloors() {
     return req.json();
 }
 
+// フロアマップ
+let floors_map = {}; 
+
 const floors = document.getElementById("floors");
 // フロアを表示する関数
-function ShowFloor(floorNum,floorName) {
+function ShowFloor(floorNum,floorName,checked) {
     const floor_div = document.createElement("div");
     
     // チェックボックス
@@ -157,6 +188,7 @@ function ShowFloor(floorNum,floorName) {
     floorCheckbox.type = "checkbox";
     floorCheckbox.name = "floors";
     floorCheckbox.value = floorNum;
+    floorCheckbox.checked = checked;
     floor_div.appendChild(floorCheckbox);
 
     // フロア名
@@ -172,6 +204,12 @@ function ShowFloor(floorNum,floorName) {
 
     // 追加
     floors.appendChild(floor_div);
+
+    // マップに追加
+    floors_map[floorNum] = {
+        checkbox: floorCheckbox,
+        input: floorInput
+    };
 }
 
 // 初期化関数
@@ -186,7 +224,7 @@ async function Init() {
         // 回す
         floors["msg"].forEach((floor) => {
             console.log(floor);
-            ShowFloor(floor["FloorNum"],floor["Name"]);
+            ShowFloor(floor["FloorNum"],floor["Name"],floor["Enabled"]);
         });
     } catch (ex) {
         console.error(ex);

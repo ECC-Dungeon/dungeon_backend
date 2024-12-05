@@ -69,14 +69,14 @@ func GetFloor(gameid string) ([]models.Floors, error) {
 	return floors, nil
 }
 
-
 type SetFloorArgs struct {
 	Floors []Floor `json:"floors"`
 }
 
 type Floor struct {
-	FloorNum int `json:"floor"`
-	Name string `json:"name"`
+	FloorNum int    `json:"floorNum"`
+	Checked  bool   `json:"checked"`
+	Name     string `json:"name"`
 }
 
 func SetFloor(gameid string, floors []Floor) error {
@@ -88,15 +88,23 @@ func SetFloor(gameid string, floors []Floor) error {
 		return err
 	}
 
+	// フロアをリセット
+	err = game.ClearFloor()
+
+	// エラー処理
+	if err != nil {
+		return err
+	}
+
 	// フロアを回す
-	for _,val := range floors {
+	for _, val := range floors {
 		// フロアが1~7までしかない
 		if val.FloorNum < 1 || val.FloorNum > 7 {
 			continue
 		}
 
 		// フロアを追加する
-		err = game.AddFloor(val.FloorNum,val.Name)
+		err = game.AddFloor(val.FloorNum, val.Name, val.Checked)
 
 		// エラー処理
 		if err != nil {

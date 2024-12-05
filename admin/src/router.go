@@ -67,7 +67,7 @@ func InitServer() *echo.Echo {
 		gameg.GET("/floor", controllers.GetFloor, middlewares.PocketAuth())
 
 		// floor を設定する
-		gameg.POST("/floor", controllers.SetFloor, middlewares.GameTokenAuth())
+		gameg.POST("/floor", controllers.SetFloor, middlewares.PocketAuth())
 	}
 
 	return server

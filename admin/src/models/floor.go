@@ -7,10 +7,11 @@ type Floors struct {
 	Enabled  bool   // 有効かどうか
 }
 
-func (game *Game) AddFloor(floorNum int, name string) error {
+func (game *Game) AddFloor(floorNum int, name string,enabled bool) error {
 	// 指定のフロアを追加する
-	return dbconn.Model(&game).Association("Floors").Append(&Floors{GameID: game.GameID, FloorNum: floorNum, Name: name})
+	return dbconn.Model(&game).Association("Floors").Append(&Floors{GameID: game.GameID, FloorNum: floorNum, Name: name, Enabled: enabled})
 }
+
 
 func (game *Game) GetFloors() ([]Floors, error) {
 	var floors []Floors
@@ -25,9 +26,7 @@ func (game *Game) GetFloors() ([]Floors, error) {
 
 func (game *Game) ClearFloor() error {
 	// フロアを削除する
-	return dbconn.Where(&Floors{
-		GameID: game.GameID,
-	}).Delete(&Floors{}).Error
+	return dbconn.Model(&game).Association("Floors").Clear()
 }
 
 // フロアを取得
