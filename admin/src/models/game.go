@@ -25,12 +25,24 @@ func CreateGame(name string, creatorID string) (Game, error) {
 		CreatedAt: utils.Now(),
 	}
 
-	// チームを作成する
+	// ゲームを作成する
 	result := dbconn.Save(&game)
 
 	// エラー処理
 	if result.Error != nil {
 		return Game{}, result.Error
+	}
+
+	// フロアを作成する
+	for i := 1; i < 8; i++ {
+		// フロアを作成する
+		err := game.AddFloor(i,"フロア名")
+
+		// エラー処理
+		if err != nil {
+			utils.Println("フロア作成失敗 : " + err.Error())
+			continue
+		}
 	}
 
 	return game, nil
@@ -67,17 +79,6 @@ func (game *Game) RemoveTeam(teamID string) error {
 
 	// チームを削除する
 	return nil
-}
-
-func (game *Game) GetFloors() ([]Floors, error) {
-	var floors []Floors
-
-	// フロアを取得する
-	result := dbconn.Where(&Floors{
-		GameID: game.GameID,
-	}).Find(&floors)
-
-	return floors, result.Error
 }
 
 func (game *Game) Delete() error {
@@ -148,9 +149,4 @@ func GetGames() ([]Game, error) {
 	result := dbconn.Where(&Game{}).Find(&games)
 
 	return games, result.Error
-}
-
-func (game *Game) SetFloors(floors []Floors) error {
-	// フロアを追加する
-	return dbconn.Model(&game).Association("Floors").Append(floors)
 }

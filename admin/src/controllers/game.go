@@ -154,12 +154,9 @@ func DeleteGame(ctx echo.Context) error {
 	})
 }
 
-type SetFloorArgs struct {
-	Floors []int `json:"floors"`
-}
 
-func SetFloor(ctx echo.Context) error {
-	// ゲームID を取得する
+func GetFloor(ctx echo.Context) error {
+	// チームID を取得する
 	gameid := ctx.Request().Header.Get("gameid")
 
 	// バリデーション
@@ -170,8 +167,38 @@ func SetFloor(ctx echo.Context) error {
 		})
 	}
 
-	// body を取得する
-	args := new(SetFloorArgs)
+	// チームを取得する
+	floor, err := services.GetFloor(gameid)
+
+	// エラー処理
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, echo.Map{
+			"result": "error",
+			"msg":    err.Error(),
+		})
+	}
+
+	// チームを返す
+	return ctx.JSON(http.StatusOK, echo.Map{
+		"result": "success",
+		"msg":    floor,
+	})
+}
+
+func SetFloor(ctx echo.Context) error {
+	// チームID を取得する
+	gameid := ctx.Request().Header.Get("gameid")
+
+	// バリデーション
+	if gameid == "" {
+		return ctx.JSON(http.StatusBadRequest, echo.Map{
+			"result": "error",
+			"msg":    "ゲームIDを入力してください",
+		})
+	}
+
+	// フロア取得
+	args := new(services.SetFloorArgs)
 	if err := ctx.Bind(args); err != nil {
 		return ctx.JSON(http.StatusInternalServerError, echo.Map{
 			"result": "error",
@@ -179,4 +206,19 @@ func SetFloor(ctx echo.Context) error {
 		})
 	}
 
-	
+	// フロアを設定する
+	err := services.SetFloor(gameid, args.Floors)
+
+	// エラー処理
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, echo.Map{
+			"result": "error",
+			"msg":    err.Error(),
+		})
+	}
+
+	// 結果を返す
+	return ctx.JSON(http.StatusOK, echo.Map{
+		"result": "success",
+	})
+}

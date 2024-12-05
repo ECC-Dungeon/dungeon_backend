@@ -27,10 +27,10 @@ func InitServer() *echo.Echo {
 	teamg.Use(middlewares.PocketAuth())
 	{
 		// チームを作成する エンドポイント
-		teamg.POST("/create", controllers.CreateTeam)   //確認済み
+		teamg.POST("/create", controllers.CreateTeam)   //ドキュメント済み
 
 		// チームを削除する エンドポイント
-		teamg.DELETE("/delete", controllers.DeleteTeam) //確認済み
+		teamg.DELETE("/delete", controllers.DeleteTeam) //ドキュメント済み
 
 		// ゲーム用のトークンを生成する エンドポイント
 		teamg.POST("/link", controllers.GenGameToken)   //確認済み
@@ -45,6 +45,9 @@ func InitServer() *echo.Echo {
 	// チーム情報を取得するエンドポイント
 	gameg := server.Group("/game")
 	{
+		// 使用するフロアを取得するエンドポイント
+		// gameg.GET("/floor", controllers.GetFloor, middlewares.PocketAuth())
+
 		// ゲーム一覧を取得するエンドポイント
 		gameg.GET("/list", controllers.GetGames, middlewares.PocketAuth())
 
@@ -59,6 +62,9 @@ func InitServer() *echo.Echo {
 
 		// ゲームを削除する
 		gameg.DELETE("/delete", controllers.DeleteGame, middlewares.PocketAuth()) //確認済み
+
+		// floor を取得する
+		gameg.GET("/floor", controllers.GetFloor, middlewares.PocketAuth())
 
 		// floor を設定する
 		gameg.POST("/floor", controllers.SetFloor, middlewares.GameTokenAuth())

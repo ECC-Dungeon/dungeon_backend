@@ -190,7 +190,7 @@ func debugCreateFloor(gameid string) error {
 
 	utils.Println("フロア作成をテスト")
 	// フロアを作成
-	err = game.AddFloor(1)
+	err = game.AddFloor(1,"test")
 
 	// エラー処理
 	if err != nil {
@@ -199,14 +199,14 @@ func debugCreateFloor(gameid string) error {
 	}
 
 	// 3つ作成する
-	err = game.AddFloor(2)
+	err = game.AddFloor(2,"test2")
 	if err != nil {
 		utils.Println("フロア作成失敗 : " + err.Error())
 		return err
 	}
 
 	// 3つ作成する
-	err = game.AddFloor(3)
+	err = game.AddFloor(3,"test3")
 	if err != nil {
 		utils.Println("フロア作成失敗 : " + err.Error())
 		return err

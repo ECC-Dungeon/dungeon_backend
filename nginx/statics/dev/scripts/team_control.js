@@ -108,12 +108,86 @@ function ShowTeam(id, name, creator, status, nickName) {
     teamlist.appendChild(basetr);
 }
 
+const floors_form = document.getElementById("floors_form");
+
+floors_form.addEventListener("submit", async (evt) => {
+    evt.preventDefault();
+
+    try {
+        // フォームからデータ取得
+        const formData = new FormData(floors_form);
+        const data = {
+            floors: formData.get("floors"),
+        };
+
+        console.log(data.floors);
+
+        // チームリスト更新
+        await RefreshTeam(gameid);
+
+    } catch (ex) {
+        console.error(ex);
+    }
+});
+
+async function GetFloors() {
+    //pocketbaseから取得
+    const token = await GetToken();
+
+    // フロアのリストを取得
+    const req = await fetch("/admin/game/floor", {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": token,
+            "gameid": gameid
+        },
+    });
+
+    return req.json();
+}
+
+const floors = document.getElementById("floors");
+// フロアを表示する関数
+function ShowFloor(floorNum,floorName) {
+    const floor_div = document.createElement("div");
+    
+    // チェックボックス
+    const floorCheckbox = document.createElement("input");
+    floorCheckbox.type = "checkbox";
+    floorCheckbox.name = "floors";
+    floorCheckbox.value = floorNum;
+    floor_div.appendChild(floorCheckbox);
+
+    // フロア名
+    const floorLabel = document.createElement("label");
+    floorLabel.textContent = floorName;
+    floor_div.appendChild(floorLabel);
+
+    // 名前
+    const floorInput = document.createElement("input");
+    floorInput.type = "text";
+    floorInput.value = floorName;
+    floor_div.appendChild(floorInput);
+
+    // 追加
+    floors.appendChild(floor_div);
+}
+
 // 初期化関数
 async function Init() {
     try {
         // チームリスト更新
         await RefreshTeam(gameid);
+        
+        // フロア取得
+        const floors = await GetFloors();
 
+        // 回す
+        floors["msg"].forEach((floor) => {
+            console.log(floor);
+            ShowFloor(floor["FloorNum"],floor["Name"]);
+        });
     } catch (ex) {
         console.error(ex);
         // alert("取得に失敗しました");
