@@ -2,13 +2,21 @@ package models
 
 import "admin/utils"
 
+type GameStatus string
+
+const (
+	Started GameStatus = "started"	// 開始
+	Stopped GameStatus = "stopped"	// 停止
+)
+
 type Game struct {
 	GameID    string   `gorm:"primaryKey"`
 	Name      string   //ゲーム名
 	CreatorID string   //作成者
 	Teams     []Team   `gorm:"foreignKey:GameID;references:GameID;constraints:OnDelete:CASCADE"` //チーム
 	Floors    []Floors `gorm:"foreignKey:GameID;references:GameID;constraints:OnDelete:CASCADE"` //使用するフロア
-	CreatedAt int64    //作成日
+	Status    GameStatus	// ゲーム開始済みか
+	CreatedAt int64 //作成日
 }
 
 func CreateGame(name string, creatorID string) (Game, error) {
@@ -22,6 +30,7 @@ func CreateGame(name string, creatorID string) (Game, error) {
 		CreatorID: creatorID,
 		Teams:     []Team{},
 		Floors:    []Floors{},
+		Status:    Stopped,
 		CreatedAt: utils.Now(),
 	}
 
@@ -36,7 +45,7 @@ func CreateGame(name string, creatorID string) (Game, error) {
 	// フロアを作成する
 	for i := 1; i < 8; i++ {
 		// フロアを作成する
-		err := game.AddFloor(i,"フロア名",false)
+		err := game.AddFloor(i, "フロア名", false)
 
 		// エラー処理
 		if err != nil {
@@ -51,7 +60,7 @@ func CreateGame(name string, creatorID string) (Game, error) {
 // チームを追加
 func (game *Game) AddTeam(teamID string, teamName string, creatorID string) error {
 	// チームを作成
-	team, err := CreateTeam(teamName, game.GameID,creatorID)
+	team, err := CreateTeam(teamName, game.GameID, creatorID)
 
 	// エラー処理
 	if err != nil {
@@ -83,13 +92,13 @@ func (game *Game) RemoveTeam(teamID string) error {
 
 func (game *Game) Delete() error {
 	// チーム一覧を取得
-	teams,err := game.GetTeams()
+	teams, err := game.GetTeams()
 
 	// エラー処理
 	if err != nil {
 		return err
 	}
-	
+
 	// チームを削除する
 	for _, team := range teams {
 		// チームを削除
@@ -99,7 +108,7 @@ func (game *Game) Delete() error {
 	}
 
 	// フロア一覧を取得
-	floors,err := game.GetFloors()
+	floors, err := game.GetFloors()
 
 	// エラー処理
 	if err != nil {
@@ -137,7 +146,7 @@ func (game *Game) GetTeams() ([]Team, error) {
 
 	// チームを取得する
 	err := dbconn.Model(&game).Association("Teams").Find(&teams)
-	
+
 	return teams, err
 }
 
@@ -149,4 +158,31 @@ func GetGames() ([]Game, error) {
 	result := dbconn.Where(&Game{}).Find(&games)
 
 	return games, result.Error
+}
+
+func (game *Game) Start() error {
+	return dbconn.Model(&game).Update("status", Started).Error
+}
+
+func (game *Game) Stop() error {
+	// チーム一覧を取得
+	teams, err := game.GetTeams()
+
+	// エラー処理
+	if err != nil {
+		return err
+	}
+
+	// チームを停止する
+	for _, team := range teams {
+		utils.Println("チーム停止 : " + team.TeamID)
+
+		// チームを停止
+		if err := team.EndGame(); err != nil {
+			utils.Println("チーム停止失敗 : " + err.Error())
+			continue
+		}
+	}
+
+	return dbconn.Model(&game).Update("status", Stopped).Error
 }

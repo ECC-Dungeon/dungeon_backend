@@ -68,11 +68,22 @@ floors_form.addEventListener("submit", async (evt) => {
         // トークンを取得
         const token = localStorage.getItem("game_token");
 
-        const req = await fetch("/admin/game/gamefloors", {
+        const req2 = await fetch("/admin/game/info", {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": token,
+            },
+        });
+
+        // ゲームIDを取得
+        const gameData = await req2.json();
+
+        // フォームからデータ取得
+        const req = await fetch("/admin/game/floor", {
+            method: "GET",
+            headers: {
+                "gameid": gameData["msg"]["GameID"],
             },
         });
 
@@ -82,3 +93,15 @@ floors_form.addEventListener("submit", async (evt) => {
         console.error(ex);
     }
 });
+
+async function StartGame() {
+    const req = await fetch("/admin/game/start2", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": localStorage.getItem("game_token"),
+        },
+    });
+
+    console.log(await req.json());
+}

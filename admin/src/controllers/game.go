@@ -222,3 +222,107 @@ func SetFloor(ctx echo.Context) error {
 		"result": "success",
 	})
 }
+
+func GetGameInfo(ctx echo.Context) error {
+	// チーム取得
+	team := ctx.Get("team").(models.Team)
+
+	// ゲームID を取得する
+	game,err := services.GetGame(team.GameID)
+
+	// エラー処理
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, echo.Map{
+			"result": "error",
+			"msg":    err.Error(),
+		})
+	}
+
+	return ctx.JSON(http.StatusOK, echo.Map{
+		"result": "success",
+		"msg":    game,
+	})
+}
+
+func StartGame(ctx echo.Context) error {
+	// ゲームID を取得する
+	gameid := ctx.Request().Header.Get("gameid")
+
+	// ゲームを開始する
+	err := services.StartGame(gameid)
+
+	// エラー処理
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, echo.Map{
+			"result": "error",
+			"msg":    err.Error(),
+		})
+	}
+
+	// 結果を返す
+	return ctx.JSON(http.StatusOK, echo.Map{
+		"result": "success",
+	})
+}
+
+func StopGame(ctx echo.Context) error {
+	// ゲームID を取得する
+	gameid := ctx.Request().Header.Get("gameid")
+
+	// ゲームを停止する
+	err := services.StopGame(gameid)
+
+	// エラー処理
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, echo.Map{
+			"result": "error",
+			"msg":    err.Error(),
+		})
+	}
+
+	// 結果を返す
+	return ctx.JSON(http.StatusOK, echo.Map{
+		"result": "success",
+	})
+}
+
+// スマホ側でゲームを開始する
+func StartGame2(ctx echo.Context) error {
+	// チームを取得
+	team := ctx.Get("team").(models.Team)
+
+	// ゲームを取得する
+	game,err := models.GetGame(team.GameID)
+
+	// エラー処理
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, echo.Map{
+			"result": "error",
+			"msg":    err.Error(),
+		})
+	}
+
+	// ゲームが開始していないばあい
+	if game.Status != models.Started {
+		return ctx.JSON(http.StatusBadRequest, echo.Map{
+			"result": "error",
+			"msg":    "ゲームは開始していません",
+		})
+	}
+
+	// ゲームを開始する
+	err = services.StartGame2(team.TeamID)
+
+	// エラー処理
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, echo.Map{
+			"result": "error",
+			"msg":    err.Error(),
+		})
+	}
+
+	// 結果を返す
+	return ctx.JSON(http.StatusOK, echo.Map{
+		"result": "success",
+	})
+}

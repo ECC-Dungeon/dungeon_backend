@@ -115,3 +115,49 @@ func SetFloor(gameid string, floors []Floor) error {
 
 	return nil
 }
+
+// ゲームを取得する
+func GetGame(gameid string) (models.Game, error) {
+	// ゲームを取得する
+	return models.GetGame(gameid)
+}
+
+func StartGame(gameid string) error {
+	// ゲームを取得する
+	game, err := models.GetGame(gameid)
+
+	// エラー処理
+	if err != nil {
+		return err
+	}
+
+	// ゲームを開始する
+	return game.Start()
+}
+
+func StopGame(gameid string) error {
+	// ゲームを取得する
+	game, err := models.GetGame(gameid)
+
+	// エラー処理
+	if err != nil {
+		return err
+	}
+
+	// ゲームを停止する
+	return game.Stop()
+}
+
+// スマホ側でゲームを開始する
+func StartGame2(teamid string) error {
+	// チームを取得する
+	team, err := models.GetTeam(teamid)
+
+	// エラー処理
+	if err != nil {
+		return err
+	}
+
+	// ゲームを開始する
+	return team.StartGame()
+}

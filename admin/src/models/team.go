@@ -5,8 +5,9 @@ import "admin/utils"
 type Status string
 
 const (
-	UnUsed = Status("unused")
-	Used   = Status("used")
+	UnUsed      = Status("unused")
+	Used        = Status("used")
+	TeamStarted = Status("started")
 )
 
 type Team struct {
@@ -84,6 +85,34 @@ func (team *Team) UpdateNickName(name string) error {
 
 	// チームを更新する
 	result := dbconn.Save(team)
+
+	// エラー処理
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+func (team *Team) StartGame() error {
+	team.Status = TeamStarted
+
+	// チームを更新する
+	result := dbconn.Save(&team)
+
+	// エラー処理
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+func (team *Team) EndGame() error {
+	team.Status = Used
+
+	// チームを更新する
+	result := dbconn.Save(&team)
 
 	// エラー処理
 	if result.Error != nil {

@@ -175,6 +175,40 @@ async function GetFloors() {
     return req.json();
 }
 
+async function StartGame() {
+    // pocketbaseから取得
+    const token = await GetToken();
+
+    // リクエスト送信
+    const req = await fetch("/admin/game/start", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": token,
+            "gameid": gameid
+        },
+    })
+
+    return req.json();
+}
+
+async function EndGame() {
+    // pocketbaseから取得
+    const token = await GetToken();
+
+    // リクエスト送信
+    const req = await fetch("/admin/game/end", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": token,
+            "gameid": gameid
+        },
+    })
+
+    return req.json();
+}
+
 // フロアマップ
 let floors_map = {}; 
 
