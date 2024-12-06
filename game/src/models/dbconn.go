@@ -21,6 +21,7 @@ func Init() {
 
 	// マイグレーション
 	db.AutoMigrate(&LogModel{})
+	db.AutoMigrate(&ChallengeTable{})
 
 	// グローバル変数に格納
 	dbconn = db

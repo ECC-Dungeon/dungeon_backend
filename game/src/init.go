@@ -1,8 +1,9 @@
 package main
 
 import (
-	"log"
 	"game/controllers"
+	"game/models"
+	"log"
 
 	"github.com/joho/godotenv"
 )
@@ -27,5 +28,7 @@ func Init() {
 
 	// コントローラー初期化
 	controllers.Init()
-	
+
+	// モデル初期化
+	models.Init()
 }

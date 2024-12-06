@@ -16,13 +16,13 @@ func InitServer() *echo.Echo {
 
 	// ミドルウェア
 	server.Use(middleware.Logger())
-	server.Use(middleware.Recover())
+	// server.Use(middleware.Recover())
 
 	server.POST("/", func(ctx echo.Context) error {
 		return ctx.String(http.StatusOK, "Hello, World!")
 	}, middlewares.GameAuth())
 
-	server.POST("/next",controllers.NextFloor)
+	server.POST("/next",controllers.Next, middlewares.GameAuth())
 
 	return server
 }

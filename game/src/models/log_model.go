@@ -15,3 +15,19 @@ func CreateLog(gameID string, teamID string, floorNum int) error {
 
 	return retult.Error
 }
+
+// チームのログを取得する
+func GetLogs(gameID string, teamID string) ([]LogModel, error) {
+	var logs []LogModel
+	retult := dbconn.Where(&LogModel{GameID: gameID, TeamID: teamID}).Find(&logs)
+
+	return logs, retult.Error
+}
+
+// ゲーム内のフロア数を取得する
+func CountFloors(gameID string,FloorNum int) (int64, error) {
+	var count int64
+	retult := dbconn.Where(&LogModel{GameID: gameID, FloorNum: FloorNum}).Count(&count)
+
+	return count, retult.Error
+}

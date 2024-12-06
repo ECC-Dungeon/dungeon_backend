@@ -2,16 +2,40 @@ package controllers
 
 import (
 	"game/middlewares"
+	"game/services"
+	"game/utils"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 )
 
-func NextFloor(ctx echo.Context) error {
+type NextArgs struct {
+	ClearFloor int `json:"clear_floor"`
+}
+
+func Next(ctx echo.Context) error {
 	// チームを取得
 	team := ctx.Get("team").(middlewares.Team)
+	floors := ctx.Get("floors").([]middlewares.Floor)
 
-	
-	
-	return ctx.String(http.StatusOK, "Hello, World!")
+	// 引数を取得
+	var args NextArgs
+	if err := ctx.Bind(&args); err != nil {
+		utils.Println(err)
+		return ctx.NoContent(http.StatusBadRequest)
+	}
+
+	// ログを追加
+	nextData, err := services.Next(team, floors, args.ClearFloor)
+
+	// エラー処理
+	if err != nil {
+		utils.Println(err)
+		return ctx.NoContent(http.StatusInternalServerError)
+	}
+
+	return ctx.JSON(http.StatusOK, echo.Map{
+		"msg": nextData,
+		"result": "success",
+	})
 }

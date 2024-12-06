@@ -60,6 +60,7 @@ nickname_form.addEventListener("submit", async (evt) => {
 });
 
 const floors_form = document.getElementById("floors_form");
+const floors_area = document.getElementById("floors_area");
 
 floors_form.addEventListener("submit", async (evt) => {
     evt.preventDefault();
@@ -87,8 +88,39 @@ floors_form.addEventListener("submit", async (evt) => {
             },
         });
 
-        console.log(await req.json());
+        const res = await req.json();
 
+        // 既存のフロアを削除する
+        floors_area.innerHTML = "";
+        res["msg"].forEach((floor) => {
+            console.log(floor);
+
+            // フロアが使わない場合
+            if (floor["Enabled"] == false) {
+                return;
+            }
+
+            const floor_div = document.createElement("div");
+
+            const floor_label = document.createElement("label");
+            floor_label.textContent = floor["FloorNum"];
+            floor_div.appendChild(floor_label);
+
+            // クリアボタン
+            const clearbtn = document.createElement("button");
+            clearbtn.textContent = "クリア";
+            clearbtn.addEventListener("click",async (evt) => {
+                // イベントを止める
+                evt.stopPropagation();
+                evt.preventDefault();
+
+                console.log("クリア");
+            });
+
+            floor_div.appendChild(clearbtn);
+
+            floors_area.appendChild(floor_div);
+        }); 
     } catch (ex) {
         console.error(ex);
     }
@@ -102,6 +134,9 @@ async function StartGame() {
             "Authorization": localStorage.getItem("game_token"),
         },
     });
+
+    // 次のかい取得
+    console.log(await GetNext(-1));
 
     console.log(await req.json());
 }
@@ -117,3 +152,31 @@ async function GameTest() {
 
     console.log(await req.json());
 }
+
+async function GetNext(clear_floor) {
+    const req = await fetch("/game/next", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": localStorage.getItem("game_token"),
+        },
+        body: JSON.stringify({ "clear_floor": clear_floor }),
+    });
+
+    console.log(await req.json());
+}
+
+const game_clear_form = document.getElementById("game_clear_form");
+const game_clear = document.getElementById("game_clear");
+
+game_clear_form.addEventListener("submit", async (evt) => {
+    evt.preventDefault();
+
+    try {
+        // フォームからデータ取得
+        console.log(await GetNext(Number(game_clear.value)));
+
+    } catch (ex) {
+        console.error(ex);
+    }
+});
