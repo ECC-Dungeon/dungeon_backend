@@ -6,3 +6,42 @@ RUN apt install -y wget
 RUN apt install -y git
 RUN apt install -y lsof
 WORKDIR /root/game
+
+# ビルド環境
+FROM --platform=linux/amd64 golang:1.23.3-bookworm as Build
+
+# apt 更新
+RUN apt update
+
+# 作業フォルダ指定
+WORKDIR /root/game
+
+# ソースをコピー
+COPY ./src .
+
+# モジュールをダウンロード
+RUN go mod download
+ARG GOOS=linux
+ARG GOARCH=amd64
+ARG CGO_ENABLED=1
+# ビルド成果物にデバック情報が含まれないようにする
+RUN go build -ldflags '-s -w' -o ./server
+
+
+# 実行する環境
+FROM --platform=linux/amd64 debian:bookworm-slim as runner
+
+# TLS のためのパッケージ
+RUN apt update
+RUN apt install -y ca-certificates openssl
+
+# 作業フォルダ指定
+WORKDIR /game
+
+# .env をコピー
+COPY --from=Build /root/game/.env .
+
+# ビルド感情からコピー
+COPY --from=Build /root/game/server .
+
+ENTRYPOINT ["./server"]

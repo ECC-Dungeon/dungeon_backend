@@ -7,3 +7,4 @@ services:
         tty: true
         volumes:
             - ../game/src:/root/game
+            - ../game/database:/game/database
