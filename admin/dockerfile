@@ -8,7 +8,7 @@ RUN apt install -y lsof
 WORKDIR /root/admin
 
 # ビルド環境
-FROM golang:1.23.3-bookworm as Build
+FROM --platform=linux/amd64 golang:1.23.3-bookworm as Build
 
 # apt 更新
 RUN apt update
@@ -23,12 +23,13 @@ COPY ./src .
 RUN go mod download
 ARG GOOS=linux
 ARG GOARCH=amd64
+ARG CGO_ENABLED=1
 # ビルド成果物にデバック情報が含まれないようにする
 RUN go build -ldflags '-s -w' -o ./server
 
 
 # 実行する環境
-FROM debian:bookworm-slim as runner
+FROM --platform=linux/amd64 debian:bookworm-slim as runner
 
 # TLS のためのパッケージ
 RUN apt update
