@@ -1,6 +1,7 @@
 package main
 
 import (
+	"admin/gamerpc"
 	"log"
 	"os"
 )
@@ -19,6 +20,9 @@ func main() {
 func mainServer() {
 	// 初期化
 	Init()
+
+	// GRPC 初期化
+	gamerpc.Init()
 
 	log.Println("サーバーを起動しています")
 

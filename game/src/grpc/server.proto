@@ -1,12 +1,28 @@
 syntax = "proto3";
 package games;
 
-option go_package = "../games";
+option go_package = "../gamerpc";
 
-message Message {
-  string body = 1;
+message StartArgs {
+    string gameid = 1;
+    repeated Floor floors = 2;
+    repeated Team teams = 3;
 }
 
-service SampleService {
-  rpc GetData(Message) returns (Message) {}
+message StartResult {
+    string result = 1;
+}
+
+message Floor {
+    string name = 1;
+    int32 num = 2;
+}
+
+message Team {
+    string id = 1;
+    string name = 2;
+}
+
+service GameService {
+    rpc Start(StartArgs) returns (StartResult) {}
 }

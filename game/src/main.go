@@ -2,6 +2,7 @@ package main
 
 import (
 	// "game/models"
+	grpcserver "game/grpcServer"
 	"log"
 	"os"
 )
@@ -12,6 +13,9 @@ func main() {
 
 	// 諸々初期化
 	Init()
+
+	// GRPC サーバー起動
+	go grpcserver.RunGRPC()
 
 	// サーバー起動
 	RunServer()

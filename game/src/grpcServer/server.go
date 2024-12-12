@@ -1,14 +1,14 @@
 package grpcserver
 
 import (
-	"github.com/example/grpc_sample"
-	"golang.org/x/net/context"
+	"context"
+	"game/gamerpc"
 	"google.golang.org/grpc"
 	"log"
 	"net"
 )
 
-func main() {
+func RunGRPC() {
 	log.Print("main start")
 
 	// 9000番ポートでクライアントからのリクエストを受け付けるようにする
@@ -21,7 +21,7 @@ func main() {
 
 	// Sample構造体のアドレスを渡すことで、クライアントからGetDataリクエストされると
 	// GetDataメソッドが呼ばれるようになる
-	grpc_sample.RegisterSampleServiceServer(grpcServer, &Sample{})
+	gamerpc.RegisterGameServiceServer(grpcServer, &GameRPC{})
 
 	// 以下でリッスンし続ける
 	if err := grpcServer.Serve(listen); err != nil {
@@ -31,15 +31,12 @@ func main() {
 	log.Print("main end")
 }
 
-type Sample struct {
-	name string
+type GameRPC struct {
 }
 
-func (s *Sample) GetData(
-	ctx context.Context,
-	message *grpc_sample.Message,
-) (*grpc_sample.Message, error) {
-	log.Print(message.Body)
-	return &grpc_sample.Message{Body: "レスポンスデータ"}, nil
+// Start implements gamerpc.GameServiceServer.
+func (game *GameRPC) Start(ctx context.Context, args *gamerpc.StartArgs) (*gamerpc.StartResult, error) {
+	log.Println("start")
+	log.Println(args.Teams)
+	return &gamerpc.StartResult{}, nil
 }
-

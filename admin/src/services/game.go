@@ -1,6 +1,7 @@
 package services
 
 import (
+	"admin/gamerpc"
 	"admin/models"
 	"admin/utils"
 )
@@ -125,6 +126,51 @@ func GetGame(gameid string) (models.Game, error) {
 func StartGame(gameid string) error {
 	// ゲームを取得する
 	game, err := models.GetGame(gameid)
+
+	// エラー処理
+	if err != nil {
+		return err
+	}
+
+	// チームのリスト作成
+	sendTeams := []*gamerpc.Team{}
+
+	// チームを取得する
+	teams, err := game.GetTeams()
+
+	// エラー処理
+	if err != nil {
+		return err
+	}
+
+	for _, team := range teams {
+		sendTeams = append(sendTeams, &gamerpc.Team{
+			Id:   team.TeamID,
+			Name: team.Name,
+		})
+	}
+
+	// フロアも設定
+	sendFloors := []*gamerpc.Floor{}
+
+	// フロアを取得する
+	floors,err := game.GetFloors()
+
+	// エラー処理
+	if err != nil {
+		return err
+	}
+
+	// フロアを追加
+	for _, floor := range floors {
+		sendFloors = append(sendFloors, &gamerpc.Floor{
+			Name: floor.Name,
+			Num:  int32(floor.FloorNum),
+		})
+	}
+
+	// GPRC 経由で送信
+	err = gamerpc.StartGame(gameid, sendTeams, sendFloors)
 
 	// エラー処理
 	if err != nil {
