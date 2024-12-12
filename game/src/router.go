@@ -22,7 +22,7 @@ func InitServer() *echo.Echo {
 		return ctx.String(http.StatusOK, "Hello, World!")
 	}, middlewares.GameAuth())
 
-	server.POST("/next",controllers.Next, middlewares.GameAuth())
+	server.POST("/next", controllers.Next, middlewares.GameAuth())
 
 	return server
 }

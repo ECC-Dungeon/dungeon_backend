@@ -1,7 +1,9 @@
 
 services:
     game:
-        build: ../game
+        build:
+            context: ../game
+            target: Develop # デバッグ用にビルドする
         hostname: game
         restart: always
         tty: true
