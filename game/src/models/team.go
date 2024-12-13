@@ -96,7 +96,6 @@ func (team *TeamTable) UpdateClearedFloors(clearedFloors []int) error {
 func GetTeam(gameid string,teamID string) (TeamTable, error) {
 	var team TeamTable
 	result := dbconn.Where(&TeamTable{
-		GameID: gameid,
 		TeamID: teamID,
 	}).First(&team)
 
