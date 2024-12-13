@@ -3,7 +3,7 @@ services:
     game:
         build:
             context: ../game
-            target: Develop # デバッグ用にビルドする
+            # target: Develop # デバッグ用にビルドする
         hostname: game
         restart: always
         tty: true
