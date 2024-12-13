@@ -141,6 +141,18 @@ async function StartGame() {
     console.log(await req.json());
 }
 
+async function NowFloor() {
+    const req = await fetch("/game/now", {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": localStorage.getItem("game_token"),
+        },
+    });
+
+    console.log(await req.json());
+}
+
 async function GameTest() {
     const req = await fetch("/game/", {
         method: "POST",

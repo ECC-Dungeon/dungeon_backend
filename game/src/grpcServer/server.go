@@ -32,6 +32,7 @@ func RunGRPC() {
 }
 
 type GameRPC struct {
+	
 }
 
 // Start implements gamerpc.GameServiceServer.

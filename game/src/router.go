@@ -23,6 +23,7 @@ func InitServer() *echo.Echo {
 	}, middlewares.GameAuth())
 
 	server.POST("/next", controllers.Next, middlewares.GameAuth())
+	server.GET("/now", controllers.NowFloor, middlewares.GameAuth())
 
 	return server
 }

@@ -39,3 +39,15 @@ func Next(ctx echo.Context) error {
 		"result": "success",
 	})
 }
+
+func NowFloor(ctx echo.Context) error {
+	// チームを取得
+	team := ctx.Get("team").(middlewares.Team)
+
+	_ = team
+
+	return ctx.JSON(http.StatusOK, echo.Map{
+		"msg": 1,
+		"result": "success",
+	})
+}

@@ -143,6 +143,7 @@ func StartGame(gameid string) error {
 		return err
 	}
 
+	// チームを回す
 	for _, team := range teams {
 		sendTeams = append(sendTeams, &gamerpc.Team{
 			Id:   team.TeamID,
