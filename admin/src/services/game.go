@@ -167,6 +167,12 @@ func StartGame(gameid string) error {
 
 	// フロアを追加
 	for _, floor := range floors {
+		// 使用するフロアのみ
+
+		if !floor.Enabled {
+			continue
+		}
+
 		sendFloors = append(sendFloors, &gamerpc.Floor{
 			Name: floor.Name,
 			Num:  int32(floor.FloorNum),

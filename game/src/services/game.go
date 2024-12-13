@@ -1,9 +1,10 @@
 package services
 
 import (
+	"fmt"
 	"game/middlewares"
 	"game/models"
-	"log"
+	"game/utils"
 	"slices"
 )
 
@@ -13,104 +14,204 @@ type NextData struct {
 	CleardFloor []int	//クリアした階
 }
 
+func getIndex(arr []int, value int) (int, error) {
+	for i, v := range arr {
+		if v == value {
+			return i, nil // 見つかった場合はインデックスを返す
+		}
+	}
+	return -1, fmt.Errorf("値 %d は配列に存在しません", value) // 値が見つからない場合のエラーメッセージ
+}
+
 func Next(team middlewares.Team, floors []middlewares.Floor,ClearFloor int) (NextData,error) {
-	// 現在のクリア状況を取得
-	CleardFloor,err := GetCleardFloors(team.GameID, team.TeamID)
+	// チーム取得
+	gteam,err := models.GetTeam(team.GameID, team.TeamID)
 
 	// エラー処理
 	if err != nil {
-		log.Println(err)
+		utils.Println(err)
 		return NextData{}, err
 	}
 
-	// 全ての階をクリアした場合
-	if CheckAllClear(floors, CleardFloor) {
+	// チャレンジを取得
+	challenges,err := gteam.GetChallenges()
+
+	// エラー処理
+	if err != nil {
+		utils.Println(err)
+		return NextData{}, err
+	}
+
+	// 現在のクリア状況を取得
+	clearedFloors,err := gteam.GetClearedFloors()
+
+	// エラー処理
+	if err != nil {
+		utils.Println(err)
+		return NextData{}, err
+	}
+
+	// 削除するポジション
+	pos,err := getIndex(challenges, ClearFloor)
+
+	// エラー処理
+	if err != nil {
+		utils.Println(err)
+		return NextData{}, err
+	}
+
+	// もし全ての階をクリアした場合
+	if len(challenges) == 0 {
 		return NextData{
 			NextNum:     0,
 			AllClear:    true,
-			CleardFloor: CleardFloor,
+			CleardFloor: clearedFloors,
 		}, nil
 	}
 
-	// クリアしてない場合
-	// 初期化時
-	if ClearFloor == -1 {
-		// 一番人が少ないフロアを返す
-		low_floor := models.GetLowFloor(team.GameID, floors)
+	// 要素を取得する
+	clearFloor := challenges[pos]
 
-		// チャンレンジを作成する
-		err := models.CreateChallenge(team.GameID, team.TeamID, low_floor)
+	// 配列から削除
+	updatedChallenges := append(challenges[:pos], challenges[pos+1:]...)
 
-		// エラー処理
-		if err != nil {
-			log.Println(err)
-			return NextData{}, err
-		}
-		
-		// 次のフロアを返す
+	// チャレンジを更新
+	err = gteam.UpdateChallenges(updatedChallenges)
+
+	// エラー処理
+	if err != nil {
+		utils.Println(err)
+		return NextData{}, err
+	}
+
+	// クリアしたフロアに追加
+	clearedFloors = append(clearedFloors, clearFloor)
+
+	// クリアしたフロアを更新
+	err = gteam.UpdateClearedFloors(clearedFloors)
+
+	// エラー処理
+	if err != nil {
+		utils.Println(err)
+		return NextData{}, err
+	}
+
+	utils.Println(updatedChallenges)
+
+	// もし全ての階をクリアした場合
+	if len(updatedChallenges) == 0 {
 		return NextData{
-			NextNum:     low_floor,
-			AllClear:    false,
-			CleardFloor: CleardFloor,
+			NextNum:     0,
+			AllClear:    true,
+			CleardFloor: clearedFloors,
 		}, nil
 	}
 
-	// それ以外の時
-	// 既存のチャレンジを消す
-	err = models.DeleteChallenge(team.GameID, team.TeamID, ClearFloor)
-
-	// エラー処理
-	if err != nil {
-		log.Println(err)
-		return NextData{}, err
-	}
-
-	// クリアのログを返す
-	err = models.CreateLog(team.GameID, team.TeamID, ClearFloor)
-
-	// エラー処理
-	if err != nil {
-		log.Println(err)
-		return NextData{}, err
-	}
-
-	// 現在のクリア状況を取得
-	CleardFloor,err = GetCleardFloors(team.GameID, team.TeamID)
-
-	// エラー処理
-	if err != nil {
-		log.Println(err)
-		return NextData{}, err
-	}
-
-	// クリア済みフロアを返す
-	checked_floors := []middlewares.Floor{}
-
-	for _, val := range floors {
-		// フロアが使用しない場合
-		if !val.Enabled {
-			continue
-		}
-
-		// クリア済みに含まれている場合
-		if slices.Contains(CleardFloor, val.FloorNum) {
-			val.Enabled = false
-		}
-
-		// 追加
-		checked_floors = append(checked_floors, val)
-	}
-
-	// 次のフロア取得
-	low_floor := models.GetLowFloor(team.GameID, checked_floors)
-
-	// 次のフロアを返す
 	return NextData{
-		NextNum:     low_floor,
-		AllClear:    CheckAllClear(floors, CleardFloor),
-		CleardFloor: CleardFloor,
+		NextNum:     updatedChallenges[0],
+		AllClear:    false,
+		CleardFloor: clearedFloors,
 	}, nil
 }
+
+// func Next(team middlewares.Team, floors []middlewares.Floor,ClearFloor int) (NextData,error) {
+// 	// 現在のクリア状況を取得
+// 	CleardFloor,err := GetCleardFloors(team.GameID, team.TeamID)
+
+// 	// エラー処理
+// 	if err != nil {
+// 		log.Println(err)
+// 		return NextData{}, err
+// 	}
+
+// 	// 全ての階をクリアした場合
+// 	if CheckAllClear(floors, CleardFloor) {
+// 		return NextData{
+// 			NextNum:     0,
+// 			AllClear:    true,
+// 			CleardFloor: CleardFloor,
+// 		}, nil
+// 	}
+
+// 	// クリアしてない場合
+// 	// 初期化時
+// 	if ClearFloor == -1 {
+// 		// 一番人が少ないフロアを返す
+// 		low_floor := models.GetLowFloor(team.GameID, floors)
+
+// 		// チャンレンジを作成する
+// 		err := models.CreateChallenge(team.GameID, team.TeamID, low_floor)
+
+// 		// エラー処理
+// 		if err != nil {
+// 			log.Println(err)
+// 			return NextData{}, err
+// 		}
+		
+// 		// 次のフロアを返す
+// 		return NextData{
+// 			NextNum:     low_floor,
+// 			AllClear:    false,
+// 			CleardFloor: CleardFloor,
+// 		}, nil
+// 	}
+
+// 	// それ以外の時
+// 	// 既存のチャレンジを消す
+// 	err = models.DeleteChallenge(team.GameID, team.TeamID, ClearFloor)
+
+// 	// エラー処理
+// 	if err != nil {
+// 		log.Println(err)
+// 		return NextData{}, err
+// 	}
+
+// 	// クリアのログを返す
+// 	err = models.CreateLog(team.GameID, team.TeamID, ClearFloor)
+
+// 	// エラー処理
+// 	if err != nil {
+// 		log.Println(err)
+// 		return NextData{}, err
+// 	}
+
+// 	// 現在のクリア状況を取得
+// 	CleardFloor,err = GetCleardFloors(team.GameID, team.TeamID)
+
+// 	// エラー処理
+// 	if err != nil {
+// 		log.Println(err)
+// 		return NextData{}, err
+// 	}
+
+// 	// クリア済みフロアを返す
+// 	checked_floors := []middlewares.Floor{}
+
+// 	for _, val := range floors {
+// 		// フロアが使用しない場合
+// 		if !val.Enabled {
+// 			continue
+// 		}
+
+// 		// クリア済みに含まれている場合
+// 		if slices.Contains(CleardFloor, val.FloorNum) {
+// 			val.Enabled = false
+// 		}
+
+// 		// 追加
+// 		checked_floors = append(checked_floors, val)
+// 	}
+
+// 	// 次のフロア取得
+// 	low_floor := models.GetLowFloor(team.GameID, checked_floors)
+
+// 	// 次のフロアを返す
+// 	return NextData{
+// 		NextNum:     low_floor,
+// 		AllClear:    CheckAllClear(floors, CleardFloor),
+// 		CleardFloor: CleardFloor,
+// 	}, nil
+// }
 
 
 func ConvertLogs(logs []models.LogModel) ([]int,error) {
@@ -131,7 +232,7 @@ func GetCleardFloors(gameID string, teamID string) ([]int, error) {
 
 	// エラー処理
 	if err != nil {
-		log.Println(err)
+		utils.Println(err)
 		return []int{}, err
 	}
 
@@ -140,7 +241,7 @@ func GetCleardFloors(gameID string, teamID string) ([]int, error) {
 
 	// エラー処理
 	if err != nil {
-		log.Println(err)
+		utils.Println(err)
 		return []int{}, err
 	}
 
@@ -166,4 +267,31 @@ func CheckAllClear(floors []middlewares.Floor, CleardFloor []int) bool {
 	}
 
 	return true
+}
+
+func NowFloor(team middlewares.Team) (int,error) {
+	// チームを取得
+	gteam,err := models.GetTeam(team.GameID, team.TeamID)
+
+	// エラー処理
+	if err != nil {
+		utils.Println(err)
+		return 1,err
+	}
+
+	// チャレンジを取得	
+	challenges,err := gteam.GetChallenges()
+
+	// エラー処理
+	if err != nil {
+		utils.Println(err)
+		return 1,err
+	}
+
+	// リストがない場合
+	if len(challenges) == 0 {
+		return 1, nil
+	}
+
+	return challenges[0], nil
 }

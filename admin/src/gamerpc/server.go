@@ -30,7 +30,7 @@ func StartGame(gameid string,teams []*Team,floors []*Floor) error {
 
 	// ゲームを開始する
 	Client.Start(context.Background(), &StartArgs{
-		Gameid:        "",
+		Gameid:        gameid,
 		Floors:        floors,
 		Teams:         teams,
 	})

@@ -44,10 +44,17 @@ func NowFloor(ctx echo.Context) error {
 	// チームを取得
 	team := ctx.Get("team").(middlewares.Team)
 
-	_ = team
+	// 現在の階を取得
+	nowFloor,err := services.NowFloor(team)
+
+	// エラー処理
+	if err != nil {
+		utils.Println(err)
+		return ctx.NoContent(http.StatusInternalServerError)
+	}
 
 	return ctx.JSON(http.StatusOK, echo.Map{
-		"msg": 1,
+		"msg":  nowFloor,
 		"result": "success",
 	})
 }

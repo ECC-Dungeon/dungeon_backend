@@ -9,7 +9,7 @@ import (
 func Println(data interface{}) {
 	_, file, line, ok := runtime.Caller(1)
 	if ok {
-		fname := filepath.Base(file)
+		fname,_ := filepath.Abs(file)
 		log.Printf("%s:%d   %s\n", fname, line,data)
 	}
 }
