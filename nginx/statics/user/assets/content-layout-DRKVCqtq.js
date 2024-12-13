@@ -1,0 +1,1 @@
+import{j as s}from"./index-ktjJghY_.js";const t=({children:e})=>s.jsx("section",{className:"h-screen bg-[url('assets/bg-brick-black.png')] bg-cover bg-center",children:s.jsx("div",{className:"",children:e})});export{t as C};

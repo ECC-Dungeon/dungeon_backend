@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ゲーム一覧</title>
+</head>
+<body>
+    <form id="create_team">
+        <label for="name">ゲーム名</label>
+        <input type="text" name="name" id="name">
+        <button type="submit">保存</button>
+    </form>
+
+    <br>
+
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th scope="col">ゲームID</th>
+                <th scope="col">ゲーム名</th>
+                <th scope="col">作成者</th>
+                <th scope="col">操作</th>
+            </tr>
+        </thead>
+        <tbody id="game_list">
+        </tbody>
+    </table>
+
+    <!-- pocketbase のメイン -->
+    <script src="/adminc/auth/scripts/pocketbase.umd.js"></script>
+    <!-- 認証Sdk -->
+    <script src="/adminc/auth/scripts/authsdk.js"></script>
+    <!-- 各種設定 -->
+    <script src="/adminc/config.js"></script>
+    
+    <!-- bootstrap -->
+    <link rel="stylesheet" href="./bootstrap-5.3.0-dist/css/bootstrap.min.css">
+    <script src="./bootstrap-5.3.0-dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="./scripts/game.js"></script>
+    <script src="./scripts/team.js"></script>
+    <script src="./scripts/token.js"></script>
+    <script src="./scripts/games_control.js"></script>
+</body>
+</html>

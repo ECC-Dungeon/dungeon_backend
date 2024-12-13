@@ -1,0 +1,1 @@
+import{u as n,j as o,p as e}from"./index-ktjJghY_.js";const r=()=>{const t=n(),a=()=>{localStorage.getItem("token")?t(e.app.team.getHref()):t(e.auth.login.getHref())};return o.jsx("button",{onClick:a,children:"ゲームを始める"})};export{r as LandingRoute};
