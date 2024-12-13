@@ -9,7 +9,7 @@ services:
         volumes:
             - ../nginx/conf.d:/etc/nginx/conf.d/
             - ../nginx/keys:/etc/nginx/keys
-            - ../nginx/statics:/etc/nginx/static/statics
+            - ../nginx/statics:/etc/nginx/static
     pocketbasec:
         build:
             context: ../pocketbase_custom

@@ -51,6 +51,15 @@ func Next(team middlewares.Team, floors []middlewares.Floor,ClearFloor int) (Nex
 		return NextData{}, err
 	}
 
+	
+	if ClearFloor == -1 {
+		return NextData{
+			NextNum:     challenges[0],
+			AllClear:    false,
+			CleardFloor: clearedFloors,
+		}, nil
+	}
+
 	// 削除するポジション
 	pos,err := getIndex(challenges, ClearFloor)
 
@@ -64,7 +73,7 @@ func Next(team middlewares.Team, floors []middlewares.Floor,ClearFloor int) (Nex
 	if len(challenges) == 0 {
 		return NextData{
 			NextNum:     0,
-			AllClear:    true,
+			AllClear:    false,
 			CleardFloor: clearedFloors,
 		}, nil
 	}
