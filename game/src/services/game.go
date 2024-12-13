@@ -51,7 +51,7 @@ func Next(team middlewares.Team, floors []middlewares.Floor,ClearFloor int) (Nex
 		return NextData{}, err
 	}
 
-	
+	utils.Println(clearedFloors)
 	if ClearFloor == -1 {
 		return NextData{
 			NextNum:     challenges[0],
@@ -61,7 +61,18 @@ func Next(team middlewares.Team, floors []middlewares.Floor,ClearFloor int) (Nex
 	}
 
 	// 削除するポジション
-	pos := 0
+	pos,err := getIndex(challenges, ClearFloor)
+
+	// エラー処理
+	if err != nil {
+		utils.Println(err)
+		return NextData{
+			NextNum:     challenges[0],
+			AllClear:    false,
+			CleardFloor: clearedFloors,
+		}, nil
+	}
+
 	// もし全ての階をクリアした場合
 	if len(challenges) == 0 {
 		return NextData{
