@@ -51,7 +51,6 @@ func Next(team middlewares.Team, floors []middlewares.Floor,ClearFloor int) (Nex
 		return NextData{}, err
 	}
 
-	utils.Println(clearedFloors)
 	if ClearFloor == -1 {
 		return NextData{
 			NextNum:     challenges[0],
@@ -64,7 +63,7 @@ func Next(team middlewares.Team, floors []middlewares.Floor,ClearFloor int) (Nex
 	pos,err := getIndex(challenges, ClearFloor)
 
 	// エラー処理
-	if err != nil {
+	if err != nil || pos != 0 {
 		utils.Println(err)
 		return NextData{
 			NextNum:     challenges[0],
