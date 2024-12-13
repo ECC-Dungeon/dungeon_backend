@@ -145,10 +145,13 @@ func StartGame(gameid string) error {
 
 	// チームを回す
 	for _, team := range teams {
-		sendTeams = append(sendTeams, &gamerpc.Team{
-			Id:   team.TeamID,
-			Name: team.Name,
-		})
+		if team.Status == models.Used {
+			// 使用中のチームを追加
+			sendTeams = append(sendTeams, &gamerpc.Team{
+				Id:   team.TeamID,
+				Name: team.Name,
+			})
+		}
 	}
 
 	// フロアも設定

@@ -32,12 +32,13 @@ func RunGRPC() {
 }
 
 type GameRPC struct {
-	
+
 }
 
 // Start implements gamerpc.GameServiceServer.
 func (game *GameRPC) Start(ctx context.Context, args *gamerpc.StartArgs) (*gamerpc.StartResult, error) {
 	log.Println("start")
 	log.Println(args.Teams)
+	log.Println(args.Floors)
 	return &gamerpc.StartResult{}, nil
 }
