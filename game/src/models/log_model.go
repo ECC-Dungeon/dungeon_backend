@@ -1,6 +1,9 @@
 package models
 
-import "game/utils"
+import (
+	"game/utils"
+	"log"
+)
 
 type LogModel struct {
 	GameID    string `gorm:"primary_key"` // ゲームID
@@ -10,6 +13,13 @@ type LogModel struct {
 }
 
 func CreateLog(gameID string, teamID string, floorNum int) error {
+	// reconver 
+	defer func () {
+		if rec := recover(); rec != nil {
+			log.Println("reconver")
+		}
+	}()
+
 	// DBに保存
 	retult := dbconn.Save(&LogModel{GameID: gameID, TeamID: teamID, FloorNum: floorNum, CreatedAt: utils.Now()})
 

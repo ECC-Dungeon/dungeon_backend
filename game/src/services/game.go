@@ -52,6 +52,15 @@ func Next(team middlewares.Team, floors []middlewares.Floor,ClearFloor int) (Nex
 	}
 
 	if ClearFloor == -1 {
+		// 初回の時
+		err := models.CreateLog(team.GameID, team.TeamID, -1)
+
+		// エラー処理
+		if err != nil {
+			utils.Println(err)
+			return NextData{}, err
+		}
+
 		return NextData{
 			NextNum:     challenges[0],
 			AllClear:    false,
@@ -110,8 +119,26 @@ func Next(team middlewares.Team, floors []middlewares.Floor,ClearFloor int) (Nex
 
 	utils.Println(updatedChallenges)
 
+	// 成功を記録
+	err = models.CreateLog(team.GameID, team.TeamID, clearFloor)
+
+	// エラー処理
+	if err != nil {
+		utils.Println(err)
+		return NextData{}, err
+	}
+
 	// もし全ての階をクリアした場合
 	if len(updatedChallenges) == 0 {
+		// 成功を記録
+		err = models.CreateLog(team.GameID, team.TeamID, -2)
+
+		// エラー処理
+		if err != nil {
+			utils.Println(err)
+			return NextData{}, err
+		}
+
 		return NextData{
 			NextNum:     0,
 			AllClear:    true,
